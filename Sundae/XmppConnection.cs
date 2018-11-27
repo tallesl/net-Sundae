@@ -6,6 +6,8 @@ namespace Sundae
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
+    using Sundae.Stanzas;
+    using static Sundae.Stanzas.ErrorStanza;
 
     public class XmppConnection : IDisposable
     {
@@ -20,6 +22,8 @@ namespace Sundae
         public event EventHandler<XmlElement> OnElement;
 
         public event EventHandler<Exception> OnException;
+
+        public event EventHandler<ErrorStanza> OnError;
 
         public void Connect()
         {
@@ -44,7 +48,19 @@ namespace Sundae
 
         public void SendCustom(XmlElement element) => SendCustom(element.OuterXml);
 
-        private void Read() => OnElement?.Invoke(this, _stream.Read());
+        private void Read()
+        {
+            var element = _stream.Read();
+
+            OnElement?.Invoke(this, element);
+
+            ErrorStanza error;
+
+            if (TryGetError(element, out error))
+            {
+                OnError?.Invoke(this, error);
+            }
+        }
 
         private void RunTask(Action action, CancellationToken token)
         {
