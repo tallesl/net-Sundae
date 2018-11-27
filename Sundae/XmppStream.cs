@@ -2,10 +2,10 @@
 {
     using System.IO;
     using System.Linq;
-    using System.Xml;
-    using System;
     using System.Net.Sockets;
     using System.Text;
+    using System.Xml;
+    using System;
 
     internal class XmppStream : IDisposable
     {
@@ -81,13 +81,13 @@
             MoveReader();
 
             if (_reader.NodeType == XmlNodeType.EndElement && _reader.Name == "stream:stream")
-                throw new XmlException("The XML stream was closed.");
+                throw new UnexpectedXmlException("The XML stream was closed:", CurrentElement());
 
             if (_reader.NodeType != XmlNodeType.Element)
-                throw new XmlException($"Got an unexpected \"{_reader.NodeType}\" node.");
+                throw new UnexpectedXmlException($"Got an unexpected \"{_reader.NodeType}\" node:", CurrentElement());
 
             if (!_valid.Contains(_reader.Name))
-                throw new XmlException($"Got an unexpected \"{_reader.Name}\" element.");
+                throw new UnexpectedXmlException($"Got an unexpected \"{_reader.Name}\" element:", CurrentElement());
 
             return CurrentElement();
         }
@@ -104,12 +104,7 @@
                 MoveReader();
 
             if (_reader.Name != "stream:stream")
-            {
-                var nl = Environment.NewLine;
-                var xml = CurrentElement().OuterXml;
-
-                throw new XmlException($"Expected open stream tag, got: {nl}{nl}{xml}{nl}");
-            }
+                throw new UnexpectedXmlException("Expected open stream tag, got:", CurrentElement());
         }
 
         private void MoveReader()
