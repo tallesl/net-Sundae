@@ -80,6 +80,10 @@ public static class Program
                         ");
                         break;
 
+                    case "presence":
+                        xmpp.SendCustom("<presence />");
+                        break;
+
                     default:
                         Console.WriteLine("Invalid command.");
                         Console.WriteLine();
