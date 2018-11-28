@@ -1,5 +1,6 @@
 namespace Sundae
 {
+    using Exceptions;
     using System;
     using System.Net.Sockets;
     using System.Text;
@@ -50,15 +51,31 @@ namespace Sundae
 
         private void Read()
         {
-            var element = _stream.Read();
+            XmlElement element;
 
+            try
+            {
+                // Getting next element on stream (blocking call).
+                element = _stream.Read();
+            }
+            catch (XmlStreamClosedException)
+            {
+                // Disconnecting if got a </stream:stream>.
+                Disconnect();
+                return;
+            }
+
+            // Raising the XmlElement.
             OnElement?.Invoke(this, element);
 
             ErrorStanza error;
 
+            // Trying to parse the stanza as an error.
             if (TryGetError(element, out error))
             {
+                // Raising the error.
                 OnError?.Invoke(this, error);
+                return;
             }
         }
 

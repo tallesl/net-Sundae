@@ -1,5 +1,6 @@
 ﻿namespace Sundae
 {
+    using Exceptions;
     using System.IO;
     using System.Linq;
     using System.Net.Sockets;
@@ -81,7 +82,7 @@
             MoveReader();
 
             if (_reader.NodeType == XmlNodeType.EndElement && _reader.Name == "stream:stream")
-                throw new UnexpectedXmlException("The XML stream was closed:", CurrentElement());
+                throw new XmlStreamClosedException();
 
             if (_reader.NodeType != XmlNodeType.Element)
                 throw new UnexpectedXmlException($"Got an unexpected \"{_reader.NodeType}\" node:", CurrentElement());
