@@ -7,8 +7,7 @@ namespace Sundae
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
-    using Sundae.Stanzas;
-    using static Sundae.Stanzas.ErrorStanza;
+    using static Sundae.ErrorStanza;
 
     public class XmppConnection : IDisposable
     {
@@ -18,7 +17,13 @@ namespace Sundae
 
         public XmppConnection(string host, int port) : this(host, port, host) { }
 
-        public XmppConnection(string host, int port, string domain) => _stream = new XmppStream(host, port, domain);
+        public XmppConnection(string host, int port, string domain)
+        {
+            Host = host;
+            Port = port;
+            Domain = domain;
+            _stream = new XmppStream();
+        }
 
         public event EventHandler<XmlElement> OnElement;
 
@@ -26,9 +31,15 @@ namespace Sundae
 
         public event EventHandler<ErrorStanza> OnError;
 
+        internal string Host { get; private set; }
+
+        internal int Port { get; private set; }
+
+        internal string Domain { get; private set; }
+
         public void Connect()
         {
-            _stream.Connect();
+            _stream.Connect(Host, Port, Domain);
             _tokenSource = new CancellationTokenSource();
 
             RunTask(Read, _tokenSource.Token);

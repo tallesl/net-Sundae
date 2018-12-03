@@ -22,43 +22,27 @@
             IgnoreProcessingInstructions = true,
         };
 
-        private readonly string _host;
-
-        private readonly int _port;
-
-        private readonly string _domain;
-
-        private bool _disposed;
-
-        private bool _connected;
-
         private TcpClient _client;
 
         private Stream _stream;
 
         private XmlReader _reader;
 
+        private bool _connected = false;
 
-        internal XmppStream(string host, int port, string domain)
-        {
-            _host = host;
-            _port = port;
-            _domain = domain;
-            _disposed = false;
-            _connected = false;
-        }
+        private bool _disposed = false;
 
         public void Dispose() => Disconnect();
 
-        internal void Connect()
+        internal void Connect(string host, int port, string domain)
         {
             CheckDisposed();
 
-            _client = new TcpClient(_host, _port);
+            _client = new TcpClient(host, port);
             _stream = _client.GetStream();
             _connected = true;
 
-            Write($"<stream:stream to='{_domain}' xmlns='jabber:client' " +
+            Write($"<stream:stream to='{domain}' xmlns='jabber:client' " +
                 "xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>");
 
             // Not stated in the docs, but blocks until there's data to read.

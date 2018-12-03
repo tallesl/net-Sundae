@@ -42,15 +42,7 @@ public static class Program
                         break;
 
                     case "authenticate":
-                        xmpp.SendCustom($@"
-                            <iq id='{Random()}' type='set'>
-                                <query xmlns='jabber:iq:auth'>
-                                    <username>{user}</username>
-                                    <resource>{resource}</resource>
-                                    <password>{password}</password>
-                                </query>
-                            </iq>
-                        ");
+                        xmpp.Authenticate(user, password, resource);
                         break;
 
                     case "connect":
@@ -61,26 +53,15 @@ public static class Program
                         return;
 
                     case "register":
-                        xmpp.SendCustom($@"
-                            <iq id='{Random()}' type='set' to='{domain}'>
-                                <query xmlns='jabber:iq:register'>
-                                    <username>{user}</username>
-                                    <password>{password}</password>
-                                </query>
-                            </iq> 
-                        ");
+                        xmpp.Register(user, password);
                         break;
 
                     case "message":
-                        xmpp.SendCustom($@"
-                            <message id='{Random()}' type='chat' to='{recipient}@{domain}'>
-                                <body>Test message.</body>
-                            </message>
-                        ");
+                        xmpp.Message("Test message.", $"{recipient}@{domain}");
                         break;
 
                     case "presence":
-                        xmpp.SendCustom("<presence />");
+                        xmpp.Presence();
                         break;
 
                     default:

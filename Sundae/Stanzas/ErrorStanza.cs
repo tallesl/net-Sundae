@@ -1,4 +1,4 @@
-namespace Sundae.Stanzas
+namespace Sundae
 {
     using System.Collections.Generic;
     using System.Xml;
@@ -6,6 +6,8 @@ namespace Sundae.Stanzas
 
     public class ErrorStanza
     {
+        internal ErrorStanza() { }
+
         public string DefinedCondition { get; set; }
 
         public string Text { get; set; }
