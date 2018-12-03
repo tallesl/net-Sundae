@@ -28,27 +28,38 @@
 
         private readonly string _domain;
 
+        private bool _disposed;
+
+        private bool _connected;
+
         private TcpClient _client;
 
         private Stream _stream;
 
         private XmlReader _reader;
 
+
         internal XmppStream(string host, int port, string domain)
         {
             _host = host;
             _port = port;
             _domain = domain;
+            _disposed = false;
+            _connected = false;
         }
 
         public void Dispose() => Disconnect();
 
         internal void Connect()
         {
+            CheckDisposed();
+
             _client = new TcpClient(_host, _port);
             _stream = _client.GetStream();
+            _connected = true;
 
-            WriteOpenStream();
+            Write($"<stream:stream to='{_domain}' xmlns='jabber:client' " +
+                "xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>");
 
             // Not stated in the docs, but blocks until there's data to read.
             _reader = XmlReader.Create(_stream, _settings);
@@ -58,31 +69,38 @@
 
         internal void Disconnect()
         {
+            if (_disposed)
+                return;
+
             _reader.Dispose();
 
-            WriteCloseStream();
+            Write("</stream>");
 
             _stream.Dispose();
             _client.Dispose();
 
-            _reader = null;
-            _stream = null;
-            _client = null;
+            _disposed = true;
         }
 
         internal void Write(string data)
         {
-            var bytes = Encoding.UTF8.GetBytes(data);
+            CheckConnected();
 
+            var bytes = Encoding.UTF8.GetBytes(data);
             _stream.Write(bytes, 0, bytes.Length);
         }
 
         internal XmlElement Read()
         {
+            CheckConnected();
+
             MoveReader();
 
             if (_reader.NodeType == XmlNodeType.EndElement && _reader.Name == "stream:stream")
+            {
+                Disconnect();
                 throw new XmlStreamClosedException();
+            }
 
             if (_reader.NodeType != XmlNodeType.Element)
                 throw new UnexpectedXmlException($"Got an unexpected \"{_reader.NodeType}\" node:", CurrentElement());
@@ -92,10 +110,6 @@
 
             return CurrentElement();
         }
-
-        private void WriteOpenStream() => Write($"<stream:stream to='{_domain}' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>");
-
-        private void WriteCloseStream() => Write("</stream>");
 
         private void ReadOpenStream()
         {
@@ -126,6 +140,20 @@
 
                 return doc.DocumentElement;
             }
+        }
+
+        private void CheckDisposed()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().Name);
+        }
+
+        private void CheckConnected()
+        {
+            CheckDisposed();
+
+            if (!_connected)
+                throw new InvalidOperationException("Not connected.");
         }
     }
 }

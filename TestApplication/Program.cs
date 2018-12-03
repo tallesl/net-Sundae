@@ -22,7 +22,7 @@ public static class Program
 
         var pending = new BlockingCollection<XmlElement>();
 
-        using (var xmpp = new XmppConnection(host, port))
+        using (var xmpp = new XmppConnection(host, port, domain))
         {
             xmpp.OnElement += (_, e) => pending.Add(e);
             xmpp.OnException += (_, e) =>
@@ -58,7 +58,6 @@ public static class Program
                         break;
 
                     case "disconnect":
-                        xmpp.Disconnect();
                         return;
 
                     case "register":

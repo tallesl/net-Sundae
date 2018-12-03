@@ -34,16 +34,9 @@ namespace Sundae
             RunTask(Read, _tokenSource.Token);
         }
 
-        public void Disconnect()
-        {
-            _tokenSource.Cancel();
-            _tokenSource.Dispose();
-            _tokenSource = null;
+        public void Disconnect() => _Disconnect(true);
 
-            _stream.Disconnect();
-        }
-
-        public void Dispose() => Disconnect();
+        public void Dispose() => _Disconnect(true);
 
         public void SendCustom(string data) => _stream.Write(data);
 
@@ -61,7 +54,7 @@ namespace Sundae
             catch (XmlStreamClosedException)
             {
                 // Disconnecting if got a </stream:stream>.
-                Disconnect();
+                _Disconnect(false);
                 return;
             }
 
@@ -93,6 +86,15 @@ namespace Sundae
                     OnException?.Invoke(this, e);
                 }
             });
+        }
+
+        private void _Disconnect(bool disconnectStream)
+        {
+            _tokenSource.Cancel();
+            _tokenSource.Dispose();
+
+            if (disconnectStream)
+                _stream.Disconnect();
         }
     }
 }
