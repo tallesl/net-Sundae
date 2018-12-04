@@ -42,8 +42,7 @@
             _stream = _client.GetStream();
             _connected = true;
 
-            Write($"<stream:stream to='{domain}' xmlns='jabber:client' " +
-                "xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>");
+            this.OpenStream(domain);
 
             // Not stated in the docs, but blocks until there's data to read.
             _reader = XmlReader.Create(_stream, _settings);
@@ -58,7 +57,7 @@
 
             _reader.Dispose();
 
-            Write("</stream>");
+            this.CloseStream();
 
             _stream.Dispose();
             _client.Dispose();

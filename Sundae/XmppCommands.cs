@@ -2,8 +2,14 @@ namespace Sundae
 {
     using System;
 
-    public static class Xml
+    public static class XmppCommands
     {
+        internal static void OpenStream(this XmppStream stream, string domain) =>
+            stream.Write($"<stream:stream to='{domain}' xmlns='jabber:client' " +
+                "xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>");
+
+        internal static void CloseStream(this XmppStream stream) => stream.Write("</stream>");
+
         public static void Authenticate(
             this XmppConnection xmpp, string user, string password, string resource = null) =>
             xmpp.SendCustom($@"
