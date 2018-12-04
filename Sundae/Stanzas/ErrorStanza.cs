@@ -12,7 +12,7 @@ namespace Sundae
 
         public string Text { get; set; }
 
-        public XmlElement Xml { get; set; }
+        public XmlElement Element { get; set; }
 
         public static bool TryGetError(XmlElement element, out ErrorStanza error)
         {
@@ -42,7 +42,7 @@ namespace Sundae
             {
                 DefinedCondition = definedConditions.Single().Name,
                 Text = texts.SingleOrDefault()?.InnerText.Trim(),
-                Xml = element,
+                Element = element,
             };
 
             return true;

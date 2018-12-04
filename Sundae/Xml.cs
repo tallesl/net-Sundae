@@ -16,9 +16,9 @@ namespace Sundae
                 </iq>
             ");
 
-        public static void Message(this XmppConnection xmpp, string message, string recipientJid) =>
+        public static void Message(this XmppConnection xmpp, string message, string jid) =>
             xmpp.SendCustom($@"
-                <message id='{Random()}' type='chat' to='{recipientJid}'>
+                <message id='{Random()}' type='chat' to='{jid}'>
                     <body>{message}</body>
                 </message>
             ");

@@ -8,6 +8,7 @@ namespace Sundae
     using System.Threading.Tasks;
     using System.Xml;
     using static Sundae.ErrorStanza;
+    using static Sundae.PresenceStanza;
 
     public class XmppConnection : IDisposable
     {
@@ -28,6 +29,8 @@ namespace Sundae
         public event EventHandler<XmlElement> OnElement;
 
         public event EventHandler<Exception> OnException;
+
+        public event EventHandler<PresenceStanza> OnPresence;
 
         public event EventHandler<ErrorStanza> OnError;
 
@@ -79,6 +82,16 @@ namespace Sundae
             {
                 // Raising the error.
                 OnError?.Invoke(this, error);
+                return;
+            }
+
+            PresenceStanza presence;
+
+            // Trying to parse the stanza as an error.
+            if (TryGetPresence(element, out presence))
+            {
+                // Raising the presence.
+                OnPresence?.Invoke(this, presence);
                 return;
             }
         }

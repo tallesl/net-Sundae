@@ -49,7 +49,7 @@ public static class Cli
     {
         var isRandom = text.ToLower().Trim() == "random";
 
-        return isRandom ? Random(text) : text;
+        return isRandom ? Random() : text;
     }
 
     public static string Ask(string label)
