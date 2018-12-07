@@ -20,26 +20,16 @@ namespace Sundae
 
         public XmlElement Element { get; set; }
 
-        public static bool TryGetPresence(XmlElement element, out PresenceStanza presence)
-        {
-            var type = element.GetAttribute("type");
-
-            if (element.Name != "presence" || type == "error")
-            {
-                presence = null;
-                return false;
-            }
-
-            presence = new PresenceStanza
+        internal static PresenceStanza GetPresence(XmlElement element) =>
+            element.Name != "presence" || element.GetAttribute("type") == "error" ?
+            null :
+            new PresenceStanza
             {
                 Jid = element.GetAttribute("from"),
-                Type = type,
+                Type = element.GetAttribute("type"),
                 Show = element.SingleChildOrDefault("show")?.InnerText.Trim(),
                 Status = element.SingleChildOrDefault("status")?.InnerText.Trim(),
                 Element = element,
             };
-
-            return true;
-        }
     }
 }

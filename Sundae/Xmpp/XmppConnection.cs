@@ -72,28 +72,31 @@ namespace Sundae
                 return;
             }
 
-            // Raising the XmlElement.
+            // Raising the XmlElement event.
             OnElement?.Invoke(this, element);
 
-            ErrorStanza error;
+            // Raising the proper stanza event.
+            var raised =
+                Raise(GetError(element), OnError) ||
+                Raise(GetPresence(element), OnPresence);
+        }
 
-            // Trying to parse the stanza as an error.
-            if (TryGetError(element, out error))
-            {
-                // Raising the error.
-                OnError?.Invoke(this, error);
-                return;
-            }
+        private void _Disconnect(bool disconnectStream)
+        {
+            _tokenSource.Cancel();
+            _tokenSource.Dispose();
 
-            PresenceStanza presence;
+            if (disconnectStream)
+                _stream.Disconnect();
+        }
 
-            // Trying to parse the stanza as an error.
-            if (TryGetPresence(element, out presence))
-            {
-                // Raising the presence.
-                OnPresence?.Invoke(this, presence);
-                return;
-            }
+        private bool Raise<T>(T e, EventHandler<T> handler)
+        {
+            if (e == null)
+                return false;
+
+            handler?.Invoke(this, e);
+            return true;
         }
 
         private void RunTask(Action action, CancellationToken token)
@@ -110,15 +113,6 @@ namespace Sundae
                     OnException?.Invoke(this, e);
                 }
             });
-        }
-
-        private void _Disconnect(bool disconnectStream)
-        {
-            _tokenSource.Cancel();
-            _tokenSource.Dispose();
-
-            if (disconnectStream)
-                _stream.Disconnect();
         }
     }
 }
