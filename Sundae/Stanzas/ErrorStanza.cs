@@ -24,10 +24,9 @@ namespace Sundae
                 return false;
             }
 
-            var children = errorElement.ChildNodes.Cast<XmlElement>();
+            var children = errorElement.Children();
 
             var definedConditions = children.Where(e => e.Name != "text");
-            var texts = children.Where(e => e.Name == "text");
 
             if (!definedConditions.Any())
                 throw new UnexpectedXmlException("No defined condition element found:", element);
@@ -35,35 +34,20 @@ namespace Sundae
             if (definedConditions.Count() > 1)
                 throw new UnexpectedXmlException("Multiple defined conditions found:", element);
 
-            if (texts.Count() > 1)
-                throw new UnexpectedXmlException("Multiple text elements found:", element);
-
             error = new ErrorStanza
             {
                 DefinedCondition = definedConditions.Single().Name,
-                Text = texts.SingleOrDefault()?.InnerText.Trim(),
+                Text = errorElement.SingleChildOrDefault("text")?.InnerText.Trim(),
                 Element = element,
             };
 
             return true;
         }
 
-        private static XmlElement GetStreamError(XmlElement element) => element.Name == "stream:error" ? element : null;
+        private static XmlElement GetStreamError(XmlElement element) =>
+            element.Name == "stream:error" ? element : null;
 
-        private static XmlElement GetStanzaError(XmlElement element)
-        {
-            if (element.GetAttribute("type") != "error")
-                return null;
-
-           var  elements = element.ChildNodes.Cast<XmlElement>().Where(e => e.Name == "error");
-
-            if (!elements.Any())
-                throw new UnexpectedXmlException("Found a stanza of type error without error element:", element);
-
-            if (elements.Count() > 1)
-                throw new UnexpectedXmlException("Multiple error elements found:", element);
-
-            return elements.Single();
-        }
+        private static XmlElement GetStanzaError(XmlElement element) =>
+            element.GetAttribute("type") == "error" ? element.SingleChild("error") : null;
     }
 }

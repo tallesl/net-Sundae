@@ -30,30 +30,12 @@ namespace Sundae
                 return false;
             }
 
-            var jid = element.GetAttribute("from");
-
-            if (string.IsNullOrEmpty(jid))
-                throw new UnexpectedXmlException("Missing \"from\" attribute:", element);
-
-            var children = element.ChildNodes.Cast<XmlElement>();
-            var shows = children.Where(e => e.Name == "show");
-            var statuses = children.Where(e => e.Name == "status");
-
-            if (shows.Count() > 1)
-                throw new UnexpectedXmlException("Multiple \"show\" element found:", element);
-
-            if (statuses.Count() > 1)
-                throw new UnexpectedXmlException("Multiple \"status\" element found:", element);
-
-            var show = shows.SingleOrDefault()?.InnerText.Trim() ?? string.Empty;
-            var status = statuses.SingleOrDefault()?.InnerText.Trim() ?? string.Empty;
-
             presence = new PresenceStanza
             {
-                Jid = jid,
+                Jid = element.GetAttribute("from"),
                 Type = type,
-                Show = show,
-                Status = status,
+                Show = element.SingleChildOrDefault("show")?.InnerText.Trim(),
+                Status = element.SingleChildOrDefault("status")?.InnerText.Trim(),
                 Element = element,
             };
 
