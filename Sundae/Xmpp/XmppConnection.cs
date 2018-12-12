@@ -1,19 +1,24 @@
 namespace Sundae
 {
     using Exceptions;
-    using System;
+
+    using System.Collections.Concurrent;
     using System.Net.Sockets;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
+    using System.Threading;
     using System.Xml;
+    using System;
     using static Sundae.ErrorStanza;
+    using static Sundae.IqStanza;
     using static Sundae.MessageStanza;
     using static Sundae.PresenceStanza;
 
     public class XmppConnection : IDisposable
     {
         private readonly XmppStream _stream;
+
+        private readonly KeyedWait<string, XmlElement> _pendingIq;
 
         private CancellationTokenSource _tokenSource;
 
@@ -24,7 +29,9 @@ namespace Sundae
             Host = host;
             Port = port;
             Domain = domain;
+
             _stream = new XmppStream();
+            _pendingIq = new KeyedWait<string, XmlElement>();
         }
 
         public event EventHandler<ErrorStanza> OnError;
@@ -32,6 +39,8 @@ namespace Sundae
         public event EventHandler<MessageStanza> OnMessage;
 
         public event EventHandler<PresenceStanza> OnPresence;
+
+        public event EventHandler<IqStanza> OnIq;
 
         public event EventHandler<XmlElement> OnElement;
 
@@ -57,7 +66,16 @@ namespace Sundae
 
         public void SendCustom(string data) => _stream.Write(data);
 
-        public void SendCustom(XmlElement element) => SendCustom(element.OuterXml);
+        public void SendCustom(XmlElement data) => SendCustom(data.OuterXml);
+
+        public XmlElement SendCustom(string id, string data, int? millisecondsTimeout = null)
+        {
+            var element = _pendingIq.Get(id, millisecondsTimeout);
+
+            SendCustom(data);
+
+            return element.Result;
+        }
 
         private void Read()
         {
@@ -83,6 +101,7 @@ namespace Sundae
                 Raise(GetError(element), OnError) ||
                 Raise(GetMessage(element), OnMessage) ||
                 Raise(GetPresence(element), OnPresence);
+                Raise(GetIq(element), OnIq);
         }
 
         private void _Disconnect(bool disconnectStream)
@@ -100,6 +119,12 @@ namespace Sundae
                 return false;
 
             handler?.Invoke(this, e);
+
+            var iq = e as IqStanza;
+
+            if (e != null)
+                _pendingIq.Set(iq.Id, iq.Element);
+
             return true;
         }
 
