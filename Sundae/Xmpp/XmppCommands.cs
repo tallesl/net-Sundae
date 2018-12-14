@@ -3,6 +3,7 @@ namespace Sundae
     using System.Threading;
     using System.Xml;
     using System;
+    using static IqStanza;
 
     public static class XmppCommands
     {
@@ -14,12 +15,11 @@ namespace Sundae
 
         internal static void CloseStream(this XmppStream stream) => stream.Write("</stream>");
 
-        public static XmlElement Authenticate(
+        public static IqStanza Authenticate(
             this XmppConnection xmpp, string user, string password, string resource = null)
         {
             var id = Id();
-
-            return xmpp.SendCustom(id, $@"
+            var element = xmpp.SendCustom(id, $@"
                 <iq id='{id}' type='set'>
                     <query xmlns='jabber:iq:auth'>
                         <username>{user}</username>
@@ -28,6 +28,8 @@ namespace Sundae
                     </query>
                 </iq>
             ");
+
+            return GetIq(element) ?? throw new UnexpectedXmlException("Expected an \"iq\" element, got:", element);
         }
 
         public static void Message(this XmppConnection xmpp, string message, string jid) =>
@@ -42,11 +44,11 @@ namespace Sundae
                 <presence />
             ");
 
-        public static XmlElement Register(this XmppConnection xmpp, string user, string password)
+        public static IqStanza Register(this XmppConnection xmpp, string user, string password)
         {
             var id = Id();
 
-            return xmpp.SendCustom(id, $@"
+            var element = xmpp.SendCustom(id, $@"
                 <iq id='{id}' type='set' to='{xmpp.Domain}'>
                     <query xmlns='jabber:iq:register'>
                         <username>{user}</username>
@@ -54,6 +56,8 @@ namespace Sundae
                     </query>
                 </iq>
             ");
+
+            return GetIq(element) ?? throw new UnexpectedXmlException("Expected an \"iq\" element, got:", element);
         }
 
         private static string Id() => Interlocked.Increment(ref _id).ToString();

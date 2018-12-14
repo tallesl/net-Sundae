@@ -14,25 +14,14 @@ namespace Sundae
 
         public XmlElement Element { get; set; }
 
-        internal static ErrorStanza GetError(XmlElement element)
-        {
-            var errorElement = GetStreamError(element) ?? GetStanzaError(element);
-
-            return errorElement == null ?
-                null :
-                new ErrorStanza
-                {
-                    DefinedCondition = GetDefinedCondition(errorElement),
-                    Text = errorElement.SingleChildOrDefault("text")?.InnerText.Trim(),
-                    Element = element,
-                };
-        }
-
-        private static XmlElement GetStreamError(XmlElement element) =>
-            element.Name == "stream:error" ? element : null;
-
-        private static XmlElement GetStanzaError(XmlElement element) =>
-            element.GetAttribute("type") == "error" ? element.SingleChild("error") : null;
+        internal static ErrorStanza GetError(XmlElement element) =>
+            element.Name == "error" || element.Name == "stream:error" ?
+            new ErrorStanza
+            {
+                DefinedCondition = GetDefinedCondition(element),
+                Text = element.SingleChildOrDefault("text")?.InnerText.Trim(),
+                Element = element,
+            } : null;
 
         private static string GetDefinedCondition(XmlElement errorElement)
         {

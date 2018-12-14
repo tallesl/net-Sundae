@@ -34,7 +34,7 @@ namespace Sundae
             _pendingIq = new KeyedWait<string, XmlElement>();
         }
 
-        public event EventHandler<ErrorStanza> OnError;
+        public event EventHandler<ErrorStanza> OnStreamError;
 
         public event EventHandler<MessageStanza> OnMessage;
 
@@ -98,7 +98,7 @@ namespace Sundae
 
             // Raising the proper stanza event.
             var raised =
-                Raise(GetError(element), OnError) ||
+                Raise(GetError(element), OnStreamError) ||
                 Raise(GetMessage(element), OnMessage) ||
                 Raise(GetPresence(element), OnPresence);
                 Raise(GetIq(element), OnIq);

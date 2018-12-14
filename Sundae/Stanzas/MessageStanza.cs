@@ -1,6 +1,7 @@
 namespace Sundae
 {
     using System.Xml;
+    using static ErrorStanza;
 
     public class MessageStanza
     {
@@ -18,11 +19,12 @@ namespace Sundae
 
         public string Thread { get; set; }
 
+        public ErrorStanza Error { get; set; }
+
         public XmlElement Element { get; set; }
 
         internal static MessageStanza GetMessage(XmlElement element) =>
-            element.Name != "presence" || element.GetAttribute("type") == "error" ?
-            null :
+            element.Name == "presence" ?
             new MessageStanza
             {
                 From = element.GetAttributeOrThrow("from"),
@@ -31,7 +33,8 @@ namespace Sundae
                 Subject = element.SingleChildOrDefault("subject")?.InnerText.Trim(),
                 Body = element.SingleChildOrDefault("body")?.InnerText.Trim(),
                 Thread = element.SingleChildOrDefault("thread")?.InnerText.Trim(),
+                Error = element.GetAttribute("type") == "error" ? GetError(element.SingleChild("error")) : null,
                 Element = element,
-            };
+            } : null;
     }
 }
