@@ -10,6 +10,8 @@
 
     internal class XmppStream : IDisposable
     {
+        private readonly object _lock = new object();
+
         private static string[] _valid = new []
         {
             "iq", "message", "presence", "stream:features", "stream:error", "stream:stream",
@@ -55,14 +57,16 @@
             if (_disposed)
                 return;
 
-            _reader.Dispose();
-
             this.CloseStream();
 
-            _stream.Dispose();
-            _client.Dispose();
+            lock (_lock)
+            {
+                _reader.Dispose();
+                _stream.Dispose();
+                _client.Dispose();
 
-            _disposed = true;
+                _disposed = true;
+            }
         }
 
         internal void Write(string data)
@@ -77,21 +81,24 @@
         {
             CheckConnected();
 
-            MoveReader();
-
-            if (_reader.NodeType == XmlNodeType.EndElement && _reader.Name == "stream:stream")
+            lock (_lock)
             {
-                Disconnect();
-                throw new XmlStreamClosedException();
+                MoveReader();
+
+                if (_reader.NodeType == XmlNodeType.EndElement && _reader.Name == "stream:stream")
+                {
+                    Disconnect();
+                    throw new XmlStreamClosedException();
+                }
+
+                if (_reader.NodeType != XmlNodeType.Element)
+                    throw new UnexpectedXmlException($"Got an unexpected \"{_reader.NodeType}\" node:", CurrentElement());
+
+                if (!_valid.Contains(_reader.Name))
+                    throw new UnexpectedXmlException($"Got an unexpected \"{_reader.Name}\" element:", CurrentElement());
+
+                return CurrentElement();
             }
-
-            if (_reader.NodeType != XmlNodeType.Element)
-                throw new UnexpectedXmlException($"Got an unexpected \"{_reader.NodeType}\" node:", CurrentElement());
-
-            if (!_valid.Contains(_reader.Name))
-                throw new UnexpectedXmlException($"Got an unexpected \"{_reader.Name}\" element:", CurrentElement());
-
-            return CurrentElement();
         }
 
         private void ReadOpenStream()
