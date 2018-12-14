@@ -122,7 +122,7 @@ namespace Sundae
 
             var iq = e as IqStanza;
 
-            if (e != null)
+            if (iq != null)
                 _pendingIq.Set(iq.Id, iq.Element);
 
             return true;
