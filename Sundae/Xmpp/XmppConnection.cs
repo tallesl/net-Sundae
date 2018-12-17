@@ -118,7 +118,7 @@ namespace Sundae
             if (e == null)
                 return false;
 
-            handler?.Invoke(this, e);
+            RunTask(() => handler?.Invoke(this, e));
 
             var iq = e as IqStanza;
 
@@ -128,14 +128,17 @@ namespace Sundae
             return true;
         }
 
-        private void RunTask(Action action, CancellationToken token)
+        private void RunTask(Action action, CancellationToken? loop = null)
         {
             Task.Run(() =>
             {
                 try
                 {
-                    while (!token.IsCancellationRequested)
+                    do
+                    {
                         action();
+                    }
+                    while (loop.HasValue && !loop.Value.IsCancellationRequested);
                 }
                 catch (Exception e)
                 {
