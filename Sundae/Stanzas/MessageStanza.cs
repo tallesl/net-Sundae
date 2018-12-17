@@ -24,7 +24,7 @@ namespace Sundae
         public XmlElement Element { get; set; }
 
         internal static MessageStanza GetMessage(XmlElement element) =>
-            element.Name == "presence" ?
+            element.Name == "message" ?
             new MessageStanza
             {
                 From = element.GetAttributeOrThrow("from"),
