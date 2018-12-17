@@ -64,6 +64,10 @@ public static class Program
                         xmpp.Presence();
                         break;
 
+                    case "roster":
+                        xmpp.Roster();
+                        break;
+
                     default:
                         Console.WriteLine("Invalid command.");
                         Console.WriteLine();

@@ -3,7 +3,6 @@ namespace Sundae
     using System.Threading;
     using System.Xml;
     using System;
-    using static IqStanza;
 
     public static class XmppCommands
     {
@@ -29,7 +28,7 @@ namespace Sundae
                 </iq>
             ");
 
-            return GetIq(element) ?? throw new UnexpectedXmlException("Expected an \"iq\" element, got:", element);
+            return GetIq(element);
         }
 
         public static void Message(this XmppConnection xmpp, string message, string jid) =>
@@ -47,7 +46,6 @@ namespace Sundae
         public static IqStanza Register(this XmppConnection xmpp, string user, string password)
         {
             var id = Id();
-
             var element = xmpp.SendCustom(id, $@"
                 <iq id='{id}' type='set' to='{xmpp.Domain}'>
                     <query xmlns='jabber:iq:register'>
@@ -57,11 +55,26 @@ namespace Sundae
                 </iq>
             ");
 
-            return GetIq(element) ?? throw new UnexpectedXmlException("Expected an \"iq\" element, got:", element);
+            return GetIq(element);
+        }
+
+        public static IqStanza Roster(this XmppConnection xmpp)
+        {
+            var id = Id();
+            var element = xmpp.SendCustom(id, $@"
+                <iq id='{id}' type='get'>
+                    <query xmlns='jabber:iq:roster' />
+                </iq>
+            ");
+
+            return GetIq(element);
         }
 
         private static string Id() => Interlocked.Increment(ref _id).ToString();
 
         private static string Random() => new Random().Next().ToString("x");
+
+        private static IqStanza GetIq(XmlElement element) =>
+            IqStanza.GetIq(element) ?? throw new UnexpectedXmlException("Expected an \"iq\" element, got:", element);
     }
 }
