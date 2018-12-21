@@ -106,8 +106,9 @@ namespace Sundae
 
         private void _Disconnect(bool disconnectStream)
         {
-            _tokenSource.Cancel();
-            _tokenSource.Dispose();
+            _tokenSource?.Cancel();
+            _tokenSource?.Dispose();
+            _tokenSource = null;
 
             if (disconnectStream)
                 _stream.Disconnect();
