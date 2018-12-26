@@ -9,7 +9,9 @@ namespace Sundae
     {
         internal PresenceStanza() { }
 
-        public bool Available => string.IsNullOrEmpty(Type);
+        // https://tools.ietf.org/html/rfc6121#section-4.7.1
+        // The absence of a 'type' attribute signals that the relevant entity is available for communication.
+        public bool AvailableForCommunication => string.IsNullOrEmpty(Type);
 
         public string Jid { get; set; }
 
