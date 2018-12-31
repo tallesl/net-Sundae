@@ -8,7 +8,7 @@
 
 This is a project started out of need, on a Sunday afternoon. It grew from the frustration of the available .NET XMPP libraries, due to them being closed source, unmaintained, hard to debug, or a mix of all of those.
 
-Sundae aims to be well-written and production-ready first, and RFC complaint second. [RFC 6120](https://tools.ietf.org/html/rfc6120), [RFC 6121](https://tools.ietf.org/html/rfc6121) and [RFC 7622](https://tools.ietf.org/html/rfc7622) with the addition of [XEP-0054](https://xmpp.org/extensions/xep-0054.html) (vCard), [XEP-0065](https://xmpp.org/extensions/xep-0065.html) (SOCKS5 file transfer), [XEP-0077](https://xmpp.org/extensions/xep-0077.html) (registration) and [XEP-0078](https://xmpp.org/extensions/xep-0078.html) (non-SASL authentication) are the priority.
+Sundae aims to be well-written and production-ready first, and RFC complaint second. [RFC 6120](https://tools.ietf.org/html/rfc6120) (XML streams), [RFC 6121](https://tools.ietf.org/html/rfc6121) (messaging and presence) and [RFC 7622](https://tools.ietf.org/html/rfc7622) (JID) with the addition of [RFC 6350](https://tools.ietf.org/html/rfc6350)/[XEP-0054](https://xmpp.org/extensions/xep-0054.html) (vCard), [RFC 1928](https://tools.ietf.org/html/rfc1928)/[XEP-0065](https://xmpp.org/extensions/xep-0065.html) (SOCKS5 file transfer), [XEP-0077](https://xmpp.org/extensions/xep-0077.html) (registration) and [XEP-0078](https://xmpp.org/extensions/xep-0078.html) (non-SASL authentication) are the priority.
 
 ## ejabberd
 
