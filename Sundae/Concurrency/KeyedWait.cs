@@ -37,7 +37,7 @@ namespace Sundae
                     lock (_lock)
                     {
                         if (_pendingSet.ContainsKey(key))
-                            throw new InvalidOperationException("There's already an iq call waiting for this response.");
+                            throw new InvalidOperationException("There's already a waiting call for this response.");
 
                         _pendingSet.Add(key, signal);
                     }
