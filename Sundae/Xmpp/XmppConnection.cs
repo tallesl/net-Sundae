@@ -40,11 +40,11 @@ namespace Sundae
 
         public event EventHandler<PresenceStanza> OnPresence;
 
-        public event EventHandler<IqStanza> OnIq;
-
         public event EventHandler<XmlElement> OnElement;
 
         public event EventHandler<Exception> OnException;
+
+        public event EventHandler<Exception> OnInternalException;
 
         internal string Host { get; private set; }
 
@@ -57,7 +57,19 @@ namespace Sundae
             _stream.Connect(Host, Port, Domain);
             _tokenSource = new CancellationTokenSource();
 
-            RunTask(Read, _tokenSource.Token);
+            // Reading the XML stream until cancellation is requested, catching any internal exception.
+            Task.Run(() =>
+            {
+                try
+                {
+                    while (!_tokenSource.Token.IsCancellationRequested)
+                        Read();
+                }
+                catch (Exception e)
+                {
+                    OnInternalException?.Invoke(this, e);
+                }
+            });
         }
 
         public void Disconnect() => _Disconnect(true);
@@ -101,10 +113,10 @@ namespace Sundae
 
             // Raising the proper stanza event.
             var raised =
-                Raise(GetStreamError(element), OnStreamError) ||
-                Raise(GetMessage(element), OnMessage) ||
-                Raise(GetPresence(element), OnPresence);
-                Raise(GetIq(element), OnIq);
+                UnblockIqCall(GetIq(element)) ||
+                RaiseEvent(GetStreamError(element), OnStreamError) ||
+                RaiseEvent(GetMessage(element), OnMessage) ||
+                RaiseEvent(GetPresence(element), OnPresence);
         }
 
         private void _Disconnect(bool disconnectStream)
@@ -117,47 +129,40 @@ namespace Sundae
                 _stream.Disconnect();
         }
 
-        private bool Raise<T>(T e, EventHandler<T> handler)
+        private bool UnblockIqCall(IqStanza iq)
+        {
+            if (iq == null)
+                return false;
+
+            // Unblocks any blocking call waiting for the IQ response.
+            _pendingIq.Set(iq.Id, iq.Element);
+
+            return true;
+        }
+
+        private bool RaiseEvent<T>(T e, EventHandler<T> handler)
         {
             // Checking if the event should be handled by this call.
             // Enables this method to be called in a pipeline fashion.
             if (e == null)
                 return false;
 
-            // Runs the user event handler asynchronously catching any exception on their part.
-            RunTask(() => handler?.Invoke(this, e));
-
-            var iq = e as IqStanza;
-
-            // Unblocks any blocking call waiting for the IQ response.
-            if (iq != null)
-                _pendingIq.Set(iq.Id, iq.Element);
-
-            // Returning that the event was handled by this call.
-            // Enables this method to be called in a pipeline fashion.
-            return true;
-        }
-
-        private void RunTask(Action action, CancellationToken? loop = null)
-        {
-            // Runs the given action catching any eventual exception and raising the proper event.
+            // Runs the user event handler on another thread, catching any exception on their part.
             Task.Run(() =>
             {
                 try
                 {
-                    do
-                    {
-                        action();
-                    }
-                    // The cancellation token acts as both a flag for running as a loop (HasValue) and its condition to
-                    // stop (IsCancellationRequested).
-                    while (loop.HasValue && !loop.Value.IsCancellationRequested);
+                    handler?.Invoke(this, e);
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    OnException?.Invoke(this, e);
+                    OnException?.Invoke(this, ex);
                 }
             });
+
+            // Returning that the event was handled by this call.
+            // Enables this method to be called in a pipeline fashion.
+            return true;
         }
     }
 }
