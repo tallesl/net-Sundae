@@ -4,9 +4,9 @@ namespace Sundae
     using System.Xml;
     using System.Linq;
 
-    public class ErrorStanza
+    public class ErrorElement
     {
-        internal ErrorStanza() { }
+        internal ErrorElement() { }
 
         public string DefinedCondition { get; set; }
 
@@ -14,18 +14,19 @@ namespace Sundae
 
         public XmlElement Element { get; set; }
 
-        internal static ErrorStanza GetError(XmlElement element)
-        {
-            if (element.Name != "error" && element.Name != "stream:error")
-                return null;
+        internal static ErrorElement GetStanzaError(XmlElement element) =>
+            element.Name == "error" ? GetError(element) : null;
 
-            return new ErrorStanza
+        internal static ErrorElement GetStreamError(XmlElement element) =>
+            element.Name == "stream:error" ? GetError(element) : null;
+
+        private static ErrorElement GetError(XmlElement errorElement) =>
+            new ErrorElement
             {
-                DefinedCondition = GetDefinedCondition(element),
-                Text = element.SingleChildOrDefault("text")?.InnerText.Trim(),
-                Element = element,
+                DefinedCondition = GetDefinedCondition(errorElement),
+                Text = errorElement.SingleChildOrDefault("text")?.InnerText.Trim(),
+                Element = errorElement,
             };
-        }
 
         private static string GetDefinedCondition(XmlElement errorElement)
         {

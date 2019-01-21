@@ -1,7 +1,7 @@
 namespace Sundae
 {
     using System.Xml;
-    using static ErrorStanza;
+    using static ErrorElement;
 
     public class IqStanza
     {
@@ -13,7 +13,7 @@ namespace Sundae
 
         public XmlElement Element { get; set; }
 
-        public ErrorStanza Error { get; set; }
+        public ErrorElement Error { get; set; }
 
         internal static IqStanza GetIq(XmlElement element)
         {
@@ -25,7 +25,7 @@ namespace Sundae
                 Id = element.GetAttributeOrThrow("id"),
                 Result = element.GetAttributeOrThrow("result"),
                 Element = element,
-                Error = element.GetAttribute("type") == "error" ? GetError(element.SingleChild("error")) : null,
+                Error = element.GetAttribute("type") == "error" ? GetStanzaError(element.SingleChild("error")) : null,
             };
         }
     }

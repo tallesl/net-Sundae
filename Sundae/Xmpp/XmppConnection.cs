@@ -9,7 +9,7 @@ namespace Sundae
     using System.Threading;
     using System.Xml;
     using System;
-    using static Sundae.ErrorStanza;
+    using static Sundae.ErrorElement;
     using static Sundae.IqStanza;
     using static Sundae.MessageStanza;
     using static Sundae.PresenceStanza;
@@ -34,7 +34,7 @@ namespace Sundae
             _pendingIq = new KeyedWait<string, XmlElement>();
         }
 
-        public event EventHandler<ErrorStanza> OnStreamError;
+        public event EventHandler<ErrorElement> OnStreamError;
 
         public event EventHandler<MessageStanza> OnMessage;
 
@@ -101,7 +101,7 @@ namespace Sundae
 
             // Raising the proper stanza event.
             var raised =
-                Raise(GetError(element), OnStreamError) ||
+                Raise(GetStreamError(element), OnStreamError) ||
                 Raise(GetMessage(element), OnMessage) ||
                 Raise(GetPresence(element), OnPresence);
                 Raise(GetIq(element), OnIq);

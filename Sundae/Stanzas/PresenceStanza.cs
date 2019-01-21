@@ -3,7 +3,7 @@ namespace Sundae
     using System.Collections.Generic;
     using System.Xml;
     using System.Linq;
-    using static ErrorStanza;
+    using static ErrorElement;
 
     public class PresenceStanza
     {
@@ -21,7 +21,7 @@ namespace Sundae
 
         public string Status { get; set; }
 
-        public ErrorStanza Error { get; set; }
+        public ErrorElement Error { get; set; }
 
         public XmlElement Element { get; set; }
 
@@ -36,7 +36,7 @@ namespace Sundae
                 Type = element.GetAttribute("type"),
                 Show = element.SingleChildOrDefault("show")?.InnerText.Trim(),
                 Status = element.SingleChildOrDefault("status")?.InnerText.Trim(),
-                Error = element.GetAttribute("type") == "error" ? GetError(element.SingleChild("error")) : null,
+                Error = element.GetAttribute("type") == "error" ? GetStanzaError(element.SingleChild("error")) : null,
                 Element = element,
             };
         }
