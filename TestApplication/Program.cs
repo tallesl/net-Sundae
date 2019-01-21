@@ -42,7 +42,7 @@ public static class Program
                         break;
 
                     case "authenticate":
-                        xmpp.Authenticate(user, password, resource);
+                        xmpp.SendAuthenticate(user, password, resource);
                         break;
 
                     case "connect":
@@ -53,19 +53,19 @@ public static class Program
                         return;
 
                     case "register":
-                        xmpp.Register(user, password);
+                        xmpp.SendRegister(user, password);
                         break;
 
                     case "message":
-                        xmpp.Message("Test message.", $"{recipient}@{domain}");
+                        xmpp.SendMessage("Test message.", $"{recipient}@{domain}");
                         break;
 
                     case "presence":
-                        xmpp.Presence();
+                        xmpp.SendPresence();
                         break;
 
                     case "roster":
-                        xmpp.Roster();
+                        xmpp.SendRoster();
                         break;
 
                     default:

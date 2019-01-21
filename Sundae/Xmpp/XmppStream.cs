@@ -45,7 +45,7 @@
             _connected = true;
 
             // Opens the XML stream with the server.
-            this.OpenStream(domain);
+            this.SendOpenStream(domain);
 
             // Not stated in the docs, but blocks until there's data to read.
             _reader = XmlReader.Create(_stream, _settings);
@@ -59,7 +59,7 @@
             if (_disposed)
                 return;
 
-            this.CloseStream();
+            this.SendCloseStream();
 
             lock (_lock)
             {

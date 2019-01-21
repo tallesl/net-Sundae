@@ -8,13 +8,13 @@ namespace Sundae
     {
         private static int _id = 0;
 
-        internal static void OpenStream(this XmppStream stream, string domain) =>
+        internal static void SendOpenStream(this XmppStream stream, string domain) =>
             stream.Write($"<stream:stream to='{domain}' xmlns='jabber:client' " +
                 "xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>");
 
-        internal static void CloseStream(this XmppStream stream) => stream.Write("</stream>");
+        internal static void SendCloseStream(this XmppStream stream) => stream.Write("</stream>");
 
-        public static IqStanza Authenticate(
+        public static IqStanza SendAuthenticate(
             this XmppConnection xmpp, string user, string password, string resource = null)
         {
             var id = Id();
@@ -31,16 +31,16 @@ namespace Sundae
             return GetIq(element);
         }
 
-        public static void Message(this XmppConnection xmpp, string message, string jid) =>
+        public static void SendMessage(this XmppConnection xmpp, string message, string jid) =>
             xmpp.SendCustom($@"
                 <message id='{Id()}' type='chat' to='{jid}'>
                     <body>{message}</body>
                 </message>
             ");
 
-        public static void Presence(this XmppConnection xmpp) => xmpp.SendCustom("<presence />");
+        public static void SendPresence(this XmppConnection xmpp) => xmpp.SendCustom("<presence />");
 
-        public static IqStanza Register(this XmppConnection xmpp, string user, string password)
+        public static IqStanza SendRegister(this XmppConnection xmpp, string user, string password)
         {
             var id = Id();
             var element = xmpp.SendCustom(id, $@"
@@ -55,7 +55,7 @@ namespace Sundae
             return GetIq(element);
         }
 
-        public static IqStanza Roster(this XmppConnection xmpp)
+        public static IqStanza SendRoster(this XmppConnection xmpp)
         {
             var id = Id();
             var element = xmpp.SendCustom(id, $@"
