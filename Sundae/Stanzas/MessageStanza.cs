@@ -23,9 +23,12 @@ namespace Sundae
 
         public XmlElement Element { get; set; }
 
-        internal static MessageStanza GetMessage(XmlElement element) =>
-            element.Name == "message" ?
-            new MessageStanza
+        internal static MessageStanza GetMessage(XmlElement element)
+        {
+            if (element.Name != "message")
+                return null;
+
+            return new MessageStanza
             {
                 From = element.GetAttributeOrThrow("from"),
                 To = element.GetAttributeOrThrow("to"),
@@ -35,6 +38,7 @@ namespace Sundae
                 Thread = element.SingleChildOrDefault("thread")?.InnerText.Trim(),
                 Error = element.GetAttribute("type") == "error" ? GetError(element.SingleChild("error")) : null,
                 Element = element,
-            } : null;
+            };
+        }
     }
 }

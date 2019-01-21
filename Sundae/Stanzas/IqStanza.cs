@@ -15,14 +15,18 @@ namespace Sundae
 
         public ErrorStanza Error { get; set; }
 
-        internal static IqStanza GetIq(XmlElement element) =>
-            element.Name == "iq" ?
-            new IqStanza
+        internal static IqStanza GetIq(XmlElement element)
+        {
+            if (element.Name != "iq")
+                return null;
+
+            return new IqStanza
             {
                 Id = element.GetAttributeOrThrow("id"),
                 Result = element.GetAttributeOrThrow("result"),
                 Element = element,
                 Error = element.GetAttribute("type") == "error" ? GetError(element.SingleChild("error")) : null,
-            } : null;
+            };
+        }
     }
 }

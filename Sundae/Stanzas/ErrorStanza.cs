@@ -14,14 +14,18 @@ namespace Sundae
 
         public XmlElement Element { get; set; }
 
-        internal static ErrorStanza GetError(XmlElement element) =>
-            element.Name == "error" || element.Name == "stream:error" ?
-            new ErrorStanza
+        internal static ErrorStanza GetError(XmlElement element)
+        {
+            if (element.Name != "error" && element.Name != "stream:error")
+                return null;
+
+            return new ErrorStanza
             {
                 DefinedCondition = GetDefinedCondition(element),
                 Text = element.SingleChildOrDefault("text")?.InnerText.Trim(),
                 Element = element,
-            } : null;
+            };
+        }
 
         private static string GetDefinedCondition(XmlElement errorElement)
         {

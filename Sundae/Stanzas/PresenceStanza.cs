@@ -25,9 +25,12 @@ namespace Sundae
 
         public XmlElement Element { get; set; }
 
-        internal static PresenceStanza GetPresence(XmlElement element) =>
-            element.Name == "presence" ?
-            new PresenceStanza
+        internal static PresenceStanza GetPresence(XmlElement element)
+        {
+            if (element.Name != "presence")
+                return null;
+
+            return new PresenceStanza
             {
                 Jid = element.GetAttribute("from"),
                 Type = element.GetAttribute("type"),
@@ -35,6 +38,7 @@ namespace Sundae
                 Status = element.SingleChildOrDefault("status")?.InnerText.Trim(),
                 Error = element.GetAttribute("type") == "error" ? GetError(element.SingleChild("error")) : null,
                 Element = element,
-            } : null;
+            };
+        }
     }
 }

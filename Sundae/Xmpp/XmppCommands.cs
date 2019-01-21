@@ -38,10 +38,7 @@ namespace Sundae
                 </message>
             ");
 
-        public static void Presence(this XmppConnection xmpp) =>
-            xmpp.SendCustom($@"
-                <presence />
-            ");
+        public static void Presence(this XmppConnection xmpp) => xmpp.SendCustom("<presence />");
 
         public static IqStanza Register(this XmppConnection xmpp, string user, string password)
         {
