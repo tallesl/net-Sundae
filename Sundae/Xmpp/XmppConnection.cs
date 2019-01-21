@@ -70,10 +70,13 @@ namespace Sundae
 
         public XmlElement SendCustom(string id, string data, int? millisecondsTimeout = null)
         {
+            // Sets up the blocking call.
             var element = _pendingIq.Get(id, millisecondsTimeout);
 
+            // Send the data.
             SendCustom(data);
 
+            // Blocks.
             return element.Result;
         }
 
@@ -116,21 +119,28 @@ namespace Sundae
 
         private bool Raise<T>(T e, EventHandler<T> handler)
         {
+            // Checking if the event should be handled by this call.
+            // Enables this method to be called in a pipeline fashion.
             if (e == null)
                 return false;
 
+            // Runs the user event handler asynchronously catching any exception on their part.
             RunTask(() => handler?.Invoke(this, e));
 
             var iq = e as IqStanza;
 
+            // Unblocks any blocking call waiting for the IQ response.
             if (iq != null)
                 _pendingIq.Set(iq.Id, iq.Element);
 
+            // Returning that the event was handled by this call.
+            // Enables this method to be called in a pipeline fashion.
             return true;
         }
 
         private void RunTask(Action action, CancellationToken? loop = null)
         {
+            // Runs the given action catching any eventual exception and raising the proper event.
             Task.Run(() =>
             {
                 try
@@ -139,6 +149,8 @@ namespace Sundae
                     {
                         action();
                     }
+                    // The cancellation token acts as both a flag for running as a loop (HasValue) and its condition to
+                    // stop (IsCancellationRequested).
                     while (loop.HasValue && !loop.Value.IsCancellationRequested);
                 }
                 catch (Exception e)

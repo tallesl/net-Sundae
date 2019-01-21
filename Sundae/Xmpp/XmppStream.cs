@@ -44,11 +44,13 @@
             _stream = _client.GetStream();
             _connected = true;
 
+            // Opens the XML stream with the server.
             this.OpenStream(domain);
 
             // Not stated in the docs, but blocks until there's data to read.
             _reader = XmlReader.Create(_stream, _settings);
 
+            // Reads the server opening the XML stream.
             ReadOpenStream();
         }
 
@@ -79,35 +81,45 @@
 
         internal XmlElement Read()
         {
+            // Should be connected.
             CheckConnected();
 
             lock (_lock)
             {
+                // Blocks until something is read.
                 MoveReader();
 
+                // The server closed the XML stream on its end.
                 if (_reader.NodeType == XmlNodeType.EndElement && _reader.Name == "stream:stream")
                 {
+                    // Closing on our end.
                     Disconnect();
                     throw new XmlStreamClosedException();
                 }
 
+                // Only XML elements are expected.
                 if (_reader.NodeType != XmlNodeType.Element)
-                    throw new UnexpectedXmlException($"Got an unexpected \"{_reader.NodeType}\" node:", CurrentElement());
+                    throw new UnexpectedXmlException($"Unexpected \"{_reader.NodeType}\" node:", CurrentElement());
 
+                // Got an unknown tag.
                 if (!_valid.Contains(_reader.Name))
-                    throw new UnexpectedXmlException($"Got an unexpected \"{_reader.Name}\" element:", CurrentElement());
+                    throw new UnexpectedXmlException($"Unexpected \"{_reader.Name}\" element:", CurrentElement());
 
+                // Reads and returns the whole element.
                 return CurrentElement();
             }
         }
 
         private void ReadOpenStream()
         {
+            // Blocks until something is read.
             MoveReader();
 
+            // Ignoring XML declaration if present.
             if (_reader.NodeType == XmlNodeType.XmlDeclaration)
                 MoveReader();
 
+            // The XML stream should start by opening a stream tag.
             if (_reader.Name != "stream:stream")
                 throw new UnexpectedXmlException("Expected open stream tag, got:", CurrentElement());
         }
