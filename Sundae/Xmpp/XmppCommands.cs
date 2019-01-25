@@ -7,8 +7,6 @@ namespace Sundae
 
     public static class XmppCommands
     {
-        private static int _id = 0;
-
         internal static void SendOpenStream(this XmppStream stream, string domain)
         {
             Encode(ref domain);
@@ -23,7 +21,7 @@ namespace Sundae
         {
             Encode(ref user, ref password, ref resource);
 
-            var id = Id();
+            var id = xmpp.NextId();
             var element = xmpp.SendCustom(id, $@"
                 <iq id='{id}' type='set'>
                     <query xmlns='jabber:iq:auth'>
@@ -40,8 +38,9 @@ namespace Sundae
         public static void SendMessage(this XmppConnection xmpp, string message, string jid)
         {
             Encode(ref message, ref jid, ref message);
+
             xmpp.SendCustom($@"
-                <message id='{Id()}' type='chat' to='{jid}'>
+                <message id='{xmpp.NextId()}' type='chat' to='{jid}'>
                     <body>{message}</body>
                 </message>
             ");
@@ -53,7 +52,7 @@ namespace Sundae
         {
             Encode(ref user, ref password);
 
-            var id = Id();
+            var id = xmpp.NextId();
             var element = xmpp.SendCustom(id, $@"
                 <iq id='{id}' type='set' to='{xmpp.Domain}'>
                     <query xmlns='jabber:iq:register'>
@@ -68,7 +67,7 @@ namespace Sundae
 
         public static IqStanza SendRoster(this XmppConnection xmpp)
         {
-            var id = Id();
+            var id = xmpp.NextId();
             var element = xmpp.SendCustom(id, $@"
                 <iq id='{id}' type='get'>
                     <query xmlns='jabber:iq:roster' />
@@ -78,7 +77,6 @@ namespace Sundae
             return GetIq(element);
         }
 
-        private static string Id() => Interlocked.Increment(ref _id).ToString();
 
         private static string Random() => new Random().Next().ToString("x");
 

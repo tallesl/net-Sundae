@@ -22,6 +22,8 @@ namespace Sundae
 
         private CancellationTokenSource _tokenSource;
 
+        private int _id;
+
         public XmppConnection(string host, int port) : this(host, port, host) { }
 
         public XmppConnection(string host, int port, string domain)
@@ -91,6 +93,8 @@ namespace Sundae
             // Blocks.
             return element.Result;
         }
+
+        internal string NextId() => Interlocked.Increment(ref _id).ToString();
 
         private void Read()
         {
