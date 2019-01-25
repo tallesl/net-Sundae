@@ -13,7 +13,7 @@ namespace Sundae
         // The absence of a 'type' attribute signals that the relevant entity is available for communication.
         public bool AvailableForCommunication => string.IsNullOrEmpty(Type);
 
-        public string Jid { get; set; }
+        public Jid From { get; set; }
 
         public string Type { get; set; }
 
@@ -32,7 +32,7 @@ namespace Sundae
 
             return new PresenceStanza
             {
-                Jid = element.GetAttribute("from"),
+                From = new Jid(element.GetAttribute("from")),
                 Type = element.GetAttribute("type"),
                 Show = element.SingleChildOrDefault("show")?.InnerText.Trim(),
                 Status = element.SingleChildOrDefault("status")?.InnerText.Trim(),

@@ -7,9 +7,9 @@ namespace Sundae
     {
         internal MessageStanza() { }
 
-        public string From { get; set; }
+        public Jid From { get; set; }
 
-        public string To { get; set; }
+        public Jid To { get; set; }
 
         public string Type { get; set; }
 
@@ -30,8 +30,8 @@ namespace Sundae
 
             return new MessageStanza
             {
-                From = element.GetAttributeOrThrow("from"),
-                To = element.GetAttributeOrThrow("to"),
+                From = new Jid(element.GetAttributeOrThrow("from")),
+                To = new Jid(element.GetAttributeOrThrow("to")),
                 Type = element.GetAttribute("type"),
                 Subject = element.SingleChildOrDefault("subject")?.InnerText.Trim(),
                 Body = element.SingleChildOrDefault("body")?.InnerText.Trim(),
