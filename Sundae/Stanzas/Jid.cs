@@ -31,8 +31,8 @@ namespace Sundae
 
         public override string ToString()
         {
-            var hasLocal = Local == null;
-            var hasResource = Resource == null;
+            var hasLocal = Local != null;
+            var hasResource = Resource != null;
 
             if (hasLocal && hasResource)
                 return $"{Local}@{Domain}/{Resource}";
