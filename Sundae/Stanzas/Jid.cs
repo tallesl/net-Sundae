@@ -43,5 +43,7 @@ namespace Sundae
             else
                 return Domain;
         }
+
+        public static implicit operator string(Jid jid) => jid.ToString();
     }
 }
