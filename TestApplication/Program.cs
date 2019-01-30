@@ -1,8 +1,9 @@
-﻿using System.Collections.Concurrent;
+﻿using Sundae;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Xml;
 using System;
-using Sundae;
 using static Cli;
 
 public static class Program
@@ -20,10 +21,21 @@ public static class Program
         var resource = args.Get("resource");
         var timeout = int.Parse(args.Get("timeout"));
 
-        var pending = new BlockingCollection<XmlElement>();
-
         using (var xmpp = new XmppConnection(host, port, domain))
         {
+            var pending = new BlockingCollection<XmlElement>();
+            var source = new CancellationTokenSource();
+            var commands = new Dictionary<string, Action>
+            {
+                { "authenticate", () => xmpp.SendAuthenticate(user, password, resource) },
+                { "connect", () => xmpp.Connect() },
+                { "disconnect", () => source.Cancel() },
+                { "register", () => xmpp.SendRegister(user, password) },
+                { "message", () => xmpp.SendMessage("Test message.", $"{recipient}@{domain}") },
+                { "presence", () => xmpp.SendPresence() },
+                { "roster", () => xmpp.SendRoster() }
+            };
+
             xmpp.OnElement += (_, e) => pending.Add(e);
             xmpp.OnException += (_, e) =>
             {
@@ -31,52 +43,25 @@ public static class Program
                 Environment.Exit(1);
             };
 
-            for (;;)
+            Console.WriteLine($"Available commands: {string.Join(", ", commands.Keys)}.");
+
+            while (!source.Token.IsCancellationRequested)
             {
-                var wait = false;
+                Action action;
 
-                switch (Ask("command").Trim())
-                {
-                    case "":
-                        wait = true;
-                        break;
+                var currentTimeout = 300;
+                var command = Ask("command").Trim().ToLower();
 
-                    case "authenticate":
-                        xmpp.SendAuthenticate(user, password, resource);
-                        break;
+                if (command == string.Empty)
+                    currentTimeout = timeout;
 
-                    case "connect":
-                        xmpp.Connect();
-                        break;
+                else if (commands.TryGetValue(command, out action))
+                    action();
 
-                    case "disconnect":
-                        return;
+                else
+                    Console.WriteLine($"Invalid command.{Environment.NewLine}");
 
-                    case "register":
-                        xmpp.SendRegister(user, password);
-                        break;
-
-                    case "message":
-                        xmpp.SendMessage("Test message.", $"{recipient}@{domain}");
-                        break;
-
-                    case "presence":
-                        xmpp.SendPresence();
-                        break;
-
-                    case "roster":
-                        xmpp.SendRoster();
-                        break;
-
-                    default:
-                        Console.WriteLine("Invalid command.");
-                        Console.WriteLine();
-                        break;
-                }
-
-                var received = wait ? pending.TakeAll(timeout) : pending.TakeAll();
-
-                PrintReceived(received);
+                PrintReceived(pending.TakeAll(currentTimeout));
             }
         }
     }

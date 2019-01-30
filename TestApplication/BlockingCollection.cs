@@ -5,7 +5,7 @@ using System;
 
 public static class BlockingCollection
 {
-    public static IEnumerable<T> TakeAll<T>(this BlockingCollection<T> pending, int timeout = 300)
+    public static IEnumerable<T> TakeAll<T>(this BlockingCollection<T> pending, int timeout)
     {
         var failed = false;
 
