@@ -147,7 +147,7 @@
         private void CheckDisposed()
         {
             if (_disposed)
-                throw new ObjectDisposedException(GetType().Name);
+                throw new ObjectDisposedException("The XMPP connection was disposed.");
         }
 
         private void CheckConnected()
