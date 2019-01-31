@@ -59,12 +59,14 @@ namespace Sundae
             _stream.Connect(Host, Port, Domain);
             _tokenSource = new CancellationTokenSource();
 
+            var token = _tokenSource.Token;
+
             // Reading the XML stream until cancellation is requested, catching any internal exception.
             Task.Run(() =>
             {
                 try
                 {
-                    while (!_tokenSource.Token.IsCancellationRequested)
+                    while (!token.IsCancellationRequested)
                         Read();
                 }
                 catch (Exception e)
