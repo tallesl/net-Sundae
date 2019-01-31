@@ -138,7 +138,7 @@
                 "xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>");
         }
 
-        private void WriteCloseStream() => _Write("</stream>");
+        private void WriteCloseStream() => _Write("</stream:stream>");
 
         private void _Write(string data)
         {
