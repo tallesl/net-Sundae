@@ -74,9 +74,14 @@ namespace Sundae
             });
         }
 
-        public void Disconnect() => _Disconnect(true);
+        public void Dispose() => Disconnect();
 
-        public void Dispose() => _Disconnect(true);
+        public void Disconnect()
+        {
+            _tokenSource.Cancel();
+            _tokenSource.Dispose();
+            _stream.Disconnect();
+        }
 
         public void SendCustom(string data) => _stream.Write(data);
 
@@ -108,7 +113,7 @@ namespace Sundae
             catch (XmlStreamClosedException)
             {
                 // Disconnecting if got a </stream:stream>.
-                _Disconnect(false);
+                Disconnect();
                 return;
             }
 
@@ -121,15 +126,6 @@ namespace Sundae
                 RaiseEvent(GetStreamError(element), OnStreamError) ||
                 RaiseEvent(GetMessage(element), OnMessage) ||
                 RaiseEvent(GetPresence(element), OnPresence);
-        }
-
-        private void _Disconnect(bool disconnectStream)
-        {
-            _tokenSource.Cancel();
-            _tokenSource.Dispose();
-
-            if (disconnectStream)
-                _stream.Disconnect();
         }
 
         private bool UnblockIqCall(IqStanza iq)
