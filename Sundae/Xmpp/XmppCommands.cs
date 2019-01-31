@@ -7,15 +7,6 @@ namespace Sundae
 
     public static class XmppCommands
     {
-        internal static void SendOpenStream(this XmppStream stream, string domain)
-        {
-            Encode(ref domain);
-            stream.Write($"<stream:stream to='{domain}' xmlns='jabber:client' " +
-                "xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>");
-        }
-
-        internal static void SendCloseStream(this XmppStream stream) => stream.Write("</stream>");
-
         public static IqStanza SendAuthenticate(
             this XmppConnection xmpp, string user, string password, string resource = null)
         {
@@ -76,7 +67,6 @@ namespace Sundae
 
             return GetIq(element);
         }
-
 
         private static string Random() => new Random().Next().ToString("x");
 

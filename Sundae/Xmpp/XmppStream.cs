@@ -7,10 +7,13 @@
     using System.Text;
     using System.Xml;
     using System;
+    using static XmlEncode;
 
     internal class XmppStream : IDisposable
     {
-        private readonly object _lock = new object();
+        private readonly object _readLock = new object();
+
+        private readonly object _writeLock = new object();
 
         private static string[] _valid = new []
         {
@@ -30,28 +33,32 @@
 
         private XmlReader _reader;
 
-        private bool _connected = false;
+        private volatile bool _connected = false;
 
-        private bool _disposed = false;
+        private volatile bool _disposed = false;
 
         public void Dispose() => Disconnect();
 
         internal void Connect(string host, int port, string domain)
         {
-            CheckDisposed();
+            lock (_readLock)
+            lock (_writeLock)
+            {
+                CheckDisposed();
 
-            _client = new TcpClient(host, port);
-            _stream = _client.GetStream();
-            _connected = true;
+                _client = new TcpClient(host, port);
+                _stream = _client.GetStream();
+                _connected = true;
 
-            // Opens the XML stream with the server.
-            this.SendOpenStream(domain);
+                // Opens the XML stream with the server.
+                WriteOpenStream(domain);
 
-            // Not stated in the docs, but blocks until there's data to read.
-            _reader = XmlReader.Create(_stream, _settings);
+                // Not stated in the docs, but blocks until there's data to read.
+                _reader = XmlReader.Create(_stream, _settings);
 
-            // Reads the server opening the XML stream.
-            ReadOpenStream();
+                // Reads the server opening the XML stream.
+                ReadOpenStream();
+            }
         }
 
         internal void Disconnect()
@@ -59,43 +66,42 @@
             if (_disposed)
                 return;
 
-            this.SendCloseStream();
+            WriteCloseStream();
 
-            lock (_lock)
+            lock (_writeLock)
+            lock (_readLock)
             {
+                _disposed = true;
+                _connected = false;
+
                 _reader.Dispose();
                 _stream.Dispose();
                 _client.Dispose();
-
-                _disposed = true;
             }
         }
 
         internal void Write(string data)
         {
-            CheckConnected();
-
-            var bytes = Encoding.UTF8.GetBytes(data);
-            _stream.Write(bytes, 0, bytes.Length);
+            lock (_writeLock)
+            {
+                CheckConnected();
+                _Write(data);
+            }
         }
 
         internal XmlElement Read()
         {
-            // Should be connected.
-            CheckConnected();
-
-            lock (_lock)
+            lock (_readLock)
             {
+                // Should be connected.
+                CheckConnected();
+
                 // Blocks until something is read.
                 MoveReader();
 
                 // The server closed the XML stream on its end.
                 if (_reader.NodeType == XmlNodeType.EndElement && _reader.Name == "stream:stream")
-                {
-                    // Closing on our end.
-                    Disconnect();
                     throw new XmlStreamClosedException();
-                }
 
                 // Only XML elements are expected.
                 if (_reader.NodeType != XmlNodeType.Element)
@@ -122,6 +128,22 @@
             // The XML stream should start by opening a stream tag.
             if (_reader.Name != "stream:stream")
                 throw new UnexpectedXmlException("Expected open stream tag, got:", CurrentElement());
+        }
+
+        private void WriteOpenStream(string domain)
+        {
+            Encode(ref domain);
+
+            _Write($"<stream:stream to='{domain}' xmlns='jabber:client' " +
+                "xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>");
+        }
+
+        private void WriteCloseStream() => _Write("</stream>");
+
+        private void _Write(string data)
+        {
+            var bytes = Encoding.UTF8.GetBytes(data);
+            _stream.Write(bytes, 0, bytes.Length);
         }
 
         private void MoveReader()

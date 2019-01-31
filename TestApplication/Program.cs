@@ -36,6 +36,7 @@ public static class Program
                 { "roster", () => xmpp.SendRoster() }
             };
 
+            xmpp.OnStreamError += (_, e) => Console.Error.WriteLine($"Stream error: {e.DefinedCondition} ({e.Text ?? "no text"})");
             xmpp.OnElement += (_, e) => pending.Add(e);
             xmpp.OnException += (_, e) =>
             {
