@@ -8,7 +8,7 @@ namespace Sundae
     // One thread blocks calling 'Get', another unblocks calling 'Set'.
     // This class enables the 'request-response' mechanism of IQ stanzas to be offered synchronously:
     // TKey should be the IQ stanza id and TValue the stanza returned by the server.
-    internal class KeyedWait<TKey, TValue>
+    internal class KeyedWait<TKey, TValue> : IDisposable
     {
         // TKeys pending to be set (pending 'Set' call).
         private readonly IDictionary<TKey, AutoResetEvent> _pendingSet = new Dictionary<TKey, AutoResetEvent>();
@@ -19,10 +19,27 @@ namespace Sundae
         // Can't get and set a TKey at the same time.
         private readonly object _lock = new object();
 
+        private volatile bool _disposed = false;
+
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            _disposed = true;
+
+            lock (_lock)
+            {
+                Parallel.ForEach(_pendingSet, kvp => kvp.Value.Set());
+            }
+        }
+
         // One thread calls 'Get', blocking until a TValue is produced.
         // A TKey is given as a reference of the pending blocking call.
         internal Task<TValue> Get(TKey key, int? millisecondsTimeout = null)
         {
+            CheckDisposed();
+
             return Task.Run(
                 () =>
                 {
@@ -50,6 +67,8 @@ namespace Sundae
         // The TKey of the blocking call waiting to be release and the desired TValue are given.
         internal bool Set(TKey key, TValue value)
         {
+            CheckDisposed();
+
             lock (_lock)
             {
                 if (!_pendingSet.ContainsKey(key))
@@ -65,11 +84,20 @@ namespace Sundae
         // Not a stack, but I like the name.
         private TTValue Pop<TTKey, TTValue>(IDictionary<TTKey, TTValue> dict, TTKey key)
         {
+            // This check makes the pending blocking calls end with the exception when the object is disposed.
+            CheckDisposed();
+
             var value = dict[key];
 
             dict.Remove(key);
 
             return value;
+        }
+
+        private void CheckDisposed()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException("The XMPP connection was disposed.");
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Sundae
                 </iq>
             ");
 
-            return GetIq(element);
+            return GetIq(element.Result);
         }
 
         public static void SendMessage(this XmppConnection xmpp, string message, string jid)
@@ -53,7 +53,7 @@ namespace Sundae
                 </iq>
             ");
 
-            return GetIq(element);
+            return GetIq(element.Result);
         }
 
         public static IqStanza SendRoster(this XmppConnection xmpp)
@@ -65,7 +65,7 @@ namespace Sundae
                 </iq>
             ");
 
-            return GetIq(element);
+            return GetIq(element.Result);
         }
 
         private static string Random() => new Random().Next().ToString("x");

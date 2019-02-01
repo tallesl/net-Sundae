@@ -82,14 +82,16 @@ namespace Sundae
         {
             _tokenSource.Cancel();
             _tokenSource.Dispose();
-            _stream.Disconnect();
+
+            _pendingIq.Dispose();
+            _stream.Dispose();
         }
 
         public void SendCustom(string data) => _stream.Write(data);
 
         public void SendCustom(XmlElement data) => SendCustom(data.OuterXml);
 
-        public XmlElement SendCustom(string id, string data, int? millisecondsTimeout = null)
+        public Task<XmlElement> SendCustom(string id, string data, int? millisecondsTimeout = null)
         {
             // Sets up the blocking call.
             var element = _pendingIq.Get(id, millisecondsTimeout);
@@ -97,8 +99,8 @@ namespace Sundae
             // Send the data.
             SendCustom(data);
 
-            // Blocks.
-            return element.Result;
+            // Future for the element.
+            return element;
         }
 
         internal string NextId() => Interlocked.Increment(ref _id).ToString();
