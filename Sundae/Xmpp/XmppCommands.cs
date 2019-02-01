@@ -31,7 +31,7 @@ namespace Sundae
             Encode(ref message, ref jid, ref message);
 
             xmpp.SendCustom($@"
-                <message id='{xmpp.NextId()}' type='chat' to='{jid}'>
+                <message type='chat' to='{jid}'>
                     <body>{message}</body>
                 </message>
             ");
