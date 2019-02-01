@@ -47,11 +47,11 @@ namespace Sundae
 
         public event EventHandler<Exception> OnInternalException;
 
-        internal string Host { get; private set; }
+        public string Host { get; private set; }
 
-        internal int Port { get; private set; }
+        public int Port { get; private set; }
 
-        internal string Domain { get; private set; }
+        public string Domain { get; private set; }
 
         public void Connect()
         {
