@@ -3,6 +3,7 @@ namespace Sundae
     using System.Threading;
     using System.Xml;
     using System;
+    using static IqStanza;
     using static XmlEncode;
 
     public static class XmppCommands
@@ -12,9 +13,8 @@ namespace Sundae
         {
             Encode(ref user, ref password, ref resource);
 
-            var id = xmpp.NextId();
-            var element = xmpp.SendCustom(id, $@"
-                <iq id='{id}' type='set'>
+            return xmpp.SendIq($@"
+                <iq type='set'>
                     <query xmlns='jabber:iq:auth'>
                         <username>{user}</username>
                         <password>{password}</password>
@@ -22,8 +22,18 @@ namespace Sundae
                     </query>
                 </iq>
             ");
+        }
 
-            return GetIq(element.Result);
+        public static IqStanza SendIq(this XmppConnection xmpp, string data, int? millisecondsTimeout = null) =>
+            xmpp.SendIq(data.ToXmlElement(), millisecondsTimeout);
+
+        public static IqStanza SendIq(this XmppConnection xmpp, XmlElement data, int? millisecondsTimeout = null)
+        {
+            if (data.Name != "iq")
+                throw new UnexpectedXmlException($"Expected \"iq\" element:", data);
+
+            var result = xmpp.SendCustomWithResult(data, millisecondsTimeout).Result;
+            return GetIq(result) ?? throw new UnexpectedXmlException("Expected an \"iq\" element, got:", result);
         }
 
         public static void SendMessage(this XmppConnection xmpp, string message, string jid)
@@ -43,34 +53,23 @@ namespace Sundae
         {
             Encode(ref user, ref password);
 
-            var id = xmpp.NextId();
-            var element = xmpp.SendCustom(id, $@"
-                <iq id='{id}' type='set' to='{xmpp.Domain}'>
+            return xmpp.SendIq($@"
+                <iq type='set' to='{xmpp.Domain}'>
                     <query xmlns='jabber:iq:register'>
                         <username>{user}</username>
                         <password>{password}</password>
                     </query>
                 </iq>
             ");
-
-            return GetIq(element.Result);
         }
 
-        public static IqStanza SendRoster(this XmppConnection xmpp)
-        {
-            var id = xmpp.NextId();
-            var element = xmpp.SendCustom(id, $@"
-                <iq id='{id}' type='get'>
+        public static IqStanza SendRoster(this XmppConnection xmpp) =>
+            xmpp.SendIq($@"
+                <iq type='get'>
                     <query xmlns='jabber:iq:roster' />
                 </iq>
             ");
 
-            return GetIq(element.Result);
-        }
-
         private static string Random() => new Random().Next().ToString("x");
-
-        private static IqStanza GetIq(XmlElement element) =>
-            IqStanza.GetIq(element) ?? throw new UnexpectedXmlException("Expected an \"iq\" element, got:", element);
     }
 }

@@ -1,7 +1,6 @@
 namespace Sundae
 {
     using Exceptions;
-
     using System.Collections.Concurrent;
     using System.Net.Sockets;
     using System.Text;
@@ -9,10 +8,10 @@ namespace Sundae
     using System.Threading;
     using System.Xml;
     using System;
-    using static Sundae.ErrorElement;
-    using static Sundae.IqStanza;
-    using static Sundae.MessageStanza;
-    using static Sundae.PresenceStanza;
+    using static ErrorElement;
+    using static IqStanza;
+    using static MessageStanza;
+    using static PresenceStanza;
 
     public class XmppConnection : IDisposable
     {
@@ -89,21 +88,27 @@ namespace Sundae
 
         public void SendCustom(string data) => _stream.Write(data);
 
+        public Task<XmlElement> SendCustomWithResult(string data, int? millisecondsTimeout = null) =>
+            SendCustomWithResult(data.ToXmlElement(), millisecondsTimeout);
+
         public void SendCustom(XmlElement data) => SendCustom(data.OuterXml);
 
-        public Task<XmlElement> SendCustom(string id, string data, int? millisecondsTimeout = null)
+        public Task<XmlElement> SendCustomWithResult(XmlElement data, int? millisecondsTimeout = null)
         {
+            // Setting an id if not provided.
+            if (!data.HasAttribute("id"))
+                data.SetAttribute("id", NextId());
+
             // Sets up the blocking call.
-            var element = _pendingIq.Get(id, millisecondsTimeout);
+            var id = data.GetAttribute("id");
+            var result = _pendingIq.Get(id, millisecondsTimeout);
 
             // Send the data.
             SendCustom(data);
 
             // Future for the element.
-            return element;
+            return result;
         }
-
-        internal string NextId() => Interlocked.Increment(ref _id).ToString();
 
         private void Read()
         {
@@ -167,5 +172,7 @@ namespace Sundae
             // Enables this method to be called in a pipeline fashion.
             return true;
         }
+
+        private string NextId() => Interlocked.Increment(ref _id).ToString();
     }
 }
