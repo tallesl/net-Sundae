@@ -121,11 +121,11 @@ namespace Sundae
                 return;
             }
 
-            // Raising the XmlElement event.
-            OnElement?.Invoke(this, element);
+            // Always raise the XmlElement event.
+            RaiseEvent(element, OnElement);
 
             // Raising the proper stanza event.
-            var raised =
+            var _ =
                 UnblockIqCall(GetIq(element)) ||
                 RaiseEvent(GetStreamError(element), OnStreamError) ||
                 RaiseEvent(GetMessage(element), OnMessage) ||
