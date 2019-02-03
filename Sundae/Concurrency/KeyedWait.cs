@@ -36,7 +36,7 @@ namespace Sundae
 
         // One thread calls 'Get', blocking until a TValue is produced.
         // A TKey is given as a reference of the pending blocking call.
-        internal Task<TValue> Get(TKey key, int? millisecondsTimeout = null)
+        internal Task<TValue> Get(TKey key, int? timeout = null)
         {
             CheckDisposed();
 
@@ -53,8 +53,8 @@ namespace Sundae
                         _pendingSet.Add(key, signal);
                     }
 
-                    if (millisecondsTimeout.HasValue)
-                        signal.WaitOne(millisecondsTimeout.Value);
+                    if (timeout.HasValue)
+                        signal.WaitOne(timeout.Value);
                     else
                         signal.WaitOne();
 

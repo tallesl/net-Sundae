@@ -12,6 +12,9 @@ namespace Sundae
     using static MessageStanza;
     using static PresenceStanza;
 
+    /// <summary>
+    /// Connection to XMPP server.
+    /// </summary>
     public class XmppConnection : IDisposable
     {
         private readonly XmppStream _stream;
@@ -22,8 +25,27 @@ namespace Sundae
 
         private int _id;
 
+        /// <summary>
+        /// Creates a XMPP connection.
+        /// Assumes 5222 for the port and the given host for the XMPP domain.
+        /// </summary>
+        /// <param name="host">Host to connect to</param>
+        public XmppConnection(string host) : this(host, 5222, host) { }
+
+        /// <summary>
+        /// Creates a XMPP connection.
+        /// Assumes the given host for the XMPP domain.
+        /// </summary>
+        /// <param name="host">Host to connect to</param>
+        /// <param name="port">Port to connect to</param>
         public XmppConnection(string host, int port) : this(host, port, host) { }
 
+        /// <summary>
+        /// Creates a XMPP connection.
+        /// </summary>
+        /// <param name="host">Host to connect to</param>
+        /// <param name="port">Port to connect to</param>
+        /// <param name="domain">XMPP domain to use</param>
         public XmppConnection(string host, int port, string domain)
         {
             Host = host;
@@ -34,24 +56,57 @@ namespace Sundae
             _pendingIq = new KeyedWait<string, XmlElement>();
         }
 
+        /// <summary>
+        /// The server ended up the stream with an error.
+        /// The connection is diposed and can't be further used after this event is raised.
+        /// </summary>
         public event EventHandler<ErrorElement> OnStreamError;
 
+        /// <summary>
+        /// A message stanza was received.
+        /// </summary>
         public event EventHandler<MessageStanza> OnMessage;
 
+        /// <summary>
+        /// A presence stanza was received.
+        /// </summary>
         public event EventHandler<PresenceStanza> OnPresence;
 
+        /// <summary>
+        /// A XML element is received by the connection.
+        /// This event is raised before any further processing.
+        /// </summary>
         public event EventHandler<XmlElement> OnElement;
 
+        /// <summary>
+        /// One of the provided event handlers throwed an exception (make sure this one doesn't throw, else the
+        /// exception is swallowed).
+        /// </summary>
         public event EventHandler<Exception> OnException;
 
+        /// <summary>
+        /// Something bad happened internally.
+        /// </summary>
         public event EventHandler<Exception> OnInternalException;
 
+        /// <summary>
+        /// Host to connect to.
+        /// </summary>
         public string Host { get; private set; }
 
+        /// <summary>
+        /// Port to connect to.
+        /// </summary>
         public int Port { get; private set; }
 
+        /// <summary>
+        /// XMPP domain to use.
+        /// </summary>
         public string Domain { get; private set; }
 
+        /// <summary>
+        /// Connects to server.
+        /// </summary>
         public void Connect()
         {
             _stream.Connect(Host, Port, Domain);
@@ -74,8 +129,14 @@ namespace Sundae
             });
         }
 
+        /// <summary>
+        /// Disconnects from the server and disposes this object.
+        /// </summary>
         public void Dispose() => Disconnect();
 
+        /// <summary>
+        /// Disconnects from the server and disposes this object.
+        /// </summary>
         public void Disconnect()
         {
             _tokenSource.Cancel();
@@ -85,25 +146,47 @@ namespace Sundae
             _stream.Dispose();
         }
 
-        public void SendCustom(string data) => _stream.Write(data);
+        /// <summary>
+        /// Sends a custom XML of yours to the XMPP server.
+        /// </summary>
+        /// <param name="xml">Custom XML to send</param>
+        public void SendCustom(string xml) => _stream.Write(xml);
 
-        public Task<XmlElement> SendCustomWithResult(string data, int? millisecondsTimeout = null) =>
-            SendCustomWithResult(data.ToXmlElement(), millisecondsTimeout);
+        /// <summary>
+        /// Sends a custom XML of yours to the server.
+        /// </summary>
+        /// <param name="xml">Custom XML to send</param>
+        public void SendCustom(XmlElement xml) => SendCustom(xml.OuterXml);
 
-        public void SendCustom(XmlElement data) => SendCustom(data.OuterXml);
+        /// <summary>
+        /// Sends a custom XML of yours returning a task with the resulted stanza given by the server.
+        /// Setting up the id attribute is optional (a random string is used if none is provided).
+        /// </summary>
+        /// <param name="xml">Custom XML to send</param>
+        /// <param name="timeout">Timeout of the request in milliseconds (null to wait indefinitely)</param>
+        /// <returns>The resulted stanza given by the server</returns>
+        public Task<XmlElement> SendCustomWithResult(string xml, int? timeout = null) =>
+            SendCustomWithResult(xml.ToXmlElement(), timeout);
 
-        public Task<XmlElement> SendCustomWithResult(XmlElement data, int? millisecondsTimeout = null)
+        /// <summary>
+        /// Sends a custom XML of yours returning a task with the resulted stanza given by the server.
+        /// Setting up the id attribute is optional (a random string is used if none is provided).
+        /// </summary>
+        /// <param name="xml">Custom XML to send</param>
+        /// <param name="timeout">Timeout of the request in milliseconds (null to wait indefinitely)</param>
+        /// <returns>The resulted stanza given by the server</returns>
+        public Task<XmlElement> SendCustomWithResult(XmlElement xml, int? timeout = null)
         {
             // Setting an id if not provided.
-            if (!data.HasAttribute("id"))
-                data.SetAttribute("id", NextId());
+            if (!xml.HasAttribute("id"))
+                xml.SetAttribute("id", NextId());
 
             // Sets up the blocking call.
-            var id = data.GetAttribute("id");
-            var result = _pendingIq.Get(id, millisecondsTimeout);
+            var id = xml.GetAttribute("id");
+            var result = _pendingIq.Get(id, timeout);
 
             // Send the data.
-            SendCustom(data);
+            SendCustom(xml);
 
             // Future for the element.
             return result;
@@ -163,7 +246,11 @@ namespace Sundae
                 }
                 catch (Exception ex)
                 {
-                    OnException?.Invoke(this, ex);
+                    try
+                    {
+                        OnException?.Invoke(this, ex);
+                    }
+                    catch { }
                 }
             });
 

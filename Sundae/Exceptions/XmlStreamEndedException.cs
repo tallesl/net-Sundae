@@ -3,8 +3,11 @@ namespace Sundae
     using System;
     using System.Xml;
 
+    /// <summary>
+    /// The XMPP server closed the XML stream.
+    /// </summary>
     public class XmlStreamClosedException : Exception
     {
-        public XmlStreamClosedException() : base("The XML stream was closed.") { }
+        internal XmlStreamClosedException() : base("The XML stream was closed.") { }
     }
 }

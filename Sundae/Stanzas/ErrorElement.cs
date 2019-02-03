@@ -4,14 +4,33 @@ namespace Sundae
     using System.Xml;
     using System.Linq;
 
+    /// <summary>
+    /// Stream or stanza-related error given by the XMPP server.
+    /// https://tools.ietf.org/html/rfc6120#section-4.9
+    /// https://tools.ietf.org/html/rfc6120#section-8.3
+    /// </summary>
     public class ErrorElement
     {
         internal ErrorElement() { }
 
-        public string DefinedCondition { get; set; }
+        // TODO replace ErrorElement with StreamError and StanzaError (defined conditions are different)
 
+        /// <summary>
+        /// Predefined conditions for stanza and stream-level errors.
+        /// https://tools.ietf.org/html/rfc6120#section-4.9.3
+        /// https://tools.ietf.org/html/rfc6120#section-8.3.3
+        /// </summary>
+        public string DefinedCondition { get; set; } // TODO StreamErrorDefinedCondition enum and StanzaErrorDefinedCondition enum
+
+        /// <summary>
+        /// Descriptive or diagnostic information that supplements the meaning of a defined condition or
+        /// application-specific condition.
+        /// </summary>
         public string Text { get; set; }
 
+        /// <summary>
+        /// XML element of this error element.
+        /// </summary>
         public XmlElement Element { get; set; }
 
         internal static ErrorElement GetStanzaError(XmlElement element) =>

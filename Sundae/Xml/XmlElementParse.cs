@@ -4,11 +4,11 @@ namespace Sundae
 
     internal static class XmlElementParse
     {
-        internal static XmlElement ToXmlElement(this string data)
+        internal static XmlElement ToXmlElement(this string xml)
         {
-            var xml = new XmlDocument(); 
-            xml.LoadXml(data); 
-            return xml.DocumentElement;
+            var doc = new XmlDocument();
+            doc.LoadXml(xml);
+            return doc.DocumentElement;
         }
     }
 }

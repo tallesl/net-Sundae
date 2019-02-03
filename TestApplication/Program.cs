@@ -31,7 +31,7 @@ public static class Program
                 { "connect", () => xmpp.Connect() },
                 { "disconnect", () => source.Cancel() },
                 { "register", () => xmpp.SendRegister(user, password) },
-                { "message", () => xmpp.SendMessage("Test message.", $"{recipient}@{domain}") },
+                { "message", () => xmpp.SendMessage($"{recipient}@{domain}", "Test message.") },
                 { "presence", () => xmpp.SendPresence() },
                 { "roster", () => xmpp.SendRoster() }
             };

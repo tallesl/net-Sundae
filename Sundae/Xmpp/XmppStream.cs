@@ -79,12 +79,12 @@
             }
         }
 
-        internal void Write(string data)
+        internal void Write(string xml)
         {
             lock (_writeLock)
             {
                 CheckConnected();
-                _Write(data);
+                _Write(xml);
             }
         }
 
@@ -139,9 +139,9 @@
 
         private void WriteCloseStream() => _Write("</stream:stream>");
 
-        private void _Write(string data)
+        private void _Write(string xml)
         {
-            var bytes = Encoding.UTF8.GetBytes(data);
+            var bytes = Encoding.UTF8.GetBytes(xml);
             _stream.Write(bytes, 0, bytes.Length);
         }
 
