@@ -1,6 +1,5 @@
 namespace Sundae
 {
-    using Exceptions;
     using System.Collections.Concurrent;
     using System.Net.Sockets;
     using System.Text;

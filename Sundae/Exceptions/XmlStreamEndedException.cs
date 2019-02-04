@@ -1,4 +1,4 @@
-namespace Sundae.Exceptions
+namespace Sundae
 {
     using System;
     using System.Xml;
