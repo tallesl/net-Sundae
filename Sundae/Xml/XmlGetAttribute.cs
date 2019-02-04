@@ -4,7 +4,14 @@ namespace Sundae
 
     internal static class XmlGetAttribute
     {
-        internal static string GetAttributeOrThrow(this XmlElement element, string name) =>
-            element.GetAttribute(name) ?? throw new UnexpectedXmlException($"Missing \"{name}\" attribute:", element);
+        internal static string GetAttributeOrThrow(this XmlElement element, string name)
+        {
+            var attribute = element.GetAttribute(name);
+
+            if (string.IsNullOrEmpty(attribute))
+                throw new UnexpectedXmlException($"Missing \"{name}\" attribute:", element);
+
+            return attribute;
+        }
     }
 }
