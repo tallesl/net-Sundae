@@ -11,6 +11,7 @@ namespace Sundae
         public static IqStanza SendAuthenticate(
             this XmppConnection xmpp, string user, string password, string resource = null)
         {
+            resource = resource ?? Random();
             Encode(ref user, ref password, ref resource);
 
             return xmpp.SendIq($@"
@@ -18,7 +19,7 @@ namespace Sundae
                     <query xmlns='jabber:iq:auth'>
                         <username>{user}</username>
                         <password>{password}</password>
-                        <resource>{Random()}</resource>
+                        <resource>{resource}</resource>
                     </query>
                 </iq>
             ");
