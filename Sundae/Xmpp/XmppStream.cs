@@ -14,11 +14,6 @@
 
         private readonly object _writeLock = new object();
 
-        private static string[] _valid = new []
-        {
-            "iq", "message", "presence", "stream:features", "stream:error", "stream:stream",
-        };
-
         private static XmlReaderSettings _settings = new XmlReaderSettings
         {
             IgnoreComments = true,
@@ -105,10 +100,6 @@
                 // Only XML elements are expected.
                 if (_reader.NodeType != XmlNodeType.Element)
                     throw new UnexpectedXmlException($"Unexpected \"{_reader.NodeType}\" node:", CurrentElement());
-
-                // Got an unknown tag.
-                if (!_valid.Contains(_reader.Name))
-                    throw new UnexpectedXmlException($"Unexpected \"{_reader.Name}\" element:", CurrentElement());
 
                 // Reads and returns the whole element.
                 return CurrentElement();
