@@ -47,10 +47,10 @@ namespace Sundae
 
             return new StanzaError
             {
-                Type = element.GetAttribute("type"),
-                DefinedCondition = element.GetDefinedCondition(),
-                Text = element.SingleChildOrDefault("text")?.InnerText.Trim(),
-                Element = element,
+                Type = errorElement.GetAttribute("type"),
+                DefinedCondition = errorElement.GetDefinedCondition(),
+                Text = errorElement.SingleChildOrDefault("text")?.InnerText.Trim(),
+                Element = errorElement,
             };
         }
     }
