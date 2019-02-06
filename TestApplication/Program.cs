@@ -36,13 +36,17 @@ public static class Program
                 { "roster", () => xmpp.SendRoster() }
             };
 
-            xmpp.OnStreamError += (_, e) => Console.Error.WriteLine($"Stream error: {e.Text ?? e.DefinedCondition}");
-            xmpp.OnElement += (_, e) => pending.Add(e);
-            xmpp.OnException += (_, e) =>
+            EventHandler<Exception> error = (_, e) =>
             {
+                Console.WriteLine();
                 Console.Error.WriteLine(e);
                 Environment.Exit(1);
             };
+
+            xmpp.OnException += error;
+            xmpp.OnInternalException += error;
+            xmpp.OnElement += (_, e) => pending.Add(e);
+            xmpp.OnStreamError += (_, e) => Console.Error.WriteLine($"Stream error: {e.Text ?? e.DefinedCondition}");
 
             Console.WriteLine($"Available commands: {string.Join(", ", commands.Keys)}.");
 
