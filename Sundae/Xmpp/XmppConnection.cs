@@ -132,19 +132,7 @@ namespace Sundae
         /// <summary>
         /// Disconnects from the server and disposes this object.
         /// </summary>
-        public void Dispose() => Disconnect();
-
-        /// <summary>
-        /// Disconnects from the server and disposes this object.
-        /// </summary>
-        public void Disconnect()
-        {
-            _tokenSource.Cancel();
-            _tokenSource.Dispose();
-
-            _pendingIq.Dispose();
-            _stream.Dispose();
-        }
+        public void Dispose() => Dispose(null);
 
         /// <summary>
         /// Sends a custom XML of yours to the XMPP server.
@@ -192,6 +180,15 @@ namespace Sundae
             return result;
         }
 
+        private void Dispose(Exception innerDispose)
+        {
+            _tokenSource.Cancel();
+            _tokenSource.Dispose();
+
+            _pendingIq.Dispose(innerDispose);
+            _stream.Dispose(innerDispose);
+        }
+
         private void Read()
         {
             XmlElement element;
@@ -201,10 +198,10 @@ namespace Sundae
                 // Getting next element on stream (blocking call).
                 element = _stream.Read();
             }
-            catch (XmlStreamClosedException)
+            catch (XmlStreamClosedException e)
             {
                 // Disconnecting if got a </stream:stream>.
-                Disconnect();
+                Dispose(e);
                 return;
             }
 

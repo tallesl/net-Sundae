@@ -8,6 +8,10 @@ namespace Sundae
     /// </summary>
     public class XmlStreamClosedException : Exception
     {
-        internal XmlStreamClosedException() : base("The XML stream was closed.") { }
+        internal XmlStreamClosedException(XmlElement lastElement): base(
+            lastElement.Name == "stream:error" ?
+            "The XML stream was closed due to an error:" +
+            $"{Environment.NewLine}{Environment.NewLine}{lastElement.OuterXml}" :
+            "The XML stream was closed.") { }
     }
 }

@@ -21,6 +21,8 @@ namespace Sundae
 
         private volatile bool _disposed = false;
 
+        private Exception _innerDisposed;
+
         public void Dispose()
         {
             if (_disposed)
@@ -32,6 +34,12 @@ namespace Sundae
             {
                 Parallel.ForEach(_pendingSet, kvp => kvp.Value.Set());
             }
+        }
+
+        internal void Dispose(Exception innerException)
+        {
+            _innerDisposed = innerException;
+            Dispose();
         }
 
         // One thread calls 'Get', blocking until a TValue is produced.
@@ -97,7 +105,7 @@ namespace Sundae
         private void CheckDisposed()
         {
             if (_disposed)
-                throw new ObjectDisposedException("The XMPP connection was disposed.");
+                throw new ObjectDisposedException("The XMPP connection was disposed.", _innerDisposed);
         }
     }
 }

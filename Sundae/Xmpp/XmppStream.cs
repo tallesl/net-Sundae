@@ -27,11 +27,38 @@
 
         private XmlReader _reader;
 
+        private XmlElement _lastElement;
+
+        private Exception _innerDisposed;
+
         private volatile bool _connected = false;
 
         private volatile bool _disposed = false;
 
-        public void Dispose() => Disconnect();
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            WriteCloseStream();
+
+            lock (_writeLock)
+            lock (_readLock)
+            {
+                _disposed = true;
+                _connected = false;
+
+                _reader.Dispose();
+                _stream.Dispose();
+                _client.Dispose();
+            }
+        }
+
+        public void Dispose(Exception innerException)
+        {
+            _innerDisposed = innerException;
+            Dispose();
+        }
 
         internal void Connect(string host, int port, string domain)
         {
@@ -52,25 +79,6 @@
 
                 // Reads the server opening the XML stream.
                 ReadOpenStream();
-            }
-        }
-
-        internal void Disconnect()
-        {
-            if (_disposed)
-                return;
-
-            WriteCloseStream();
-
-            lock (_writeLock)
-            lock (_readLock)
-            {
-                _disposed = true;
-                _connected = false;
-
-                _reader.Dispose();
-                _stream.Dispose();
-                _client.Dispose();
             }
         }
 
@@ -95,7 +103,7 @@
 
                 // The server closed the XML stream on its end.
                 if (_reader.NodeType == XmlNodeType.EndElement && _reader.Name == "stream:stream")
-                    throw new XmlStreamClosedException();
+                    throw new XmlStreamClosedException(_lastElement);
 
                 // Only XML elements are expected.
                 if (_reader.NodeType != XmlNodeType.Element)
@@ -152,6 +160,8 @@
 
                 doc.Load(inner);
 
+                _lastElement = doc.DocumentElement;
+
                 return doc.DocumentElement;
             }
         }
@@ -159,7 +169,7 @@
         private void CheckDisposed()
         {
             if (_disposed)
-                throw new ObjectDisposedException("The XMPP connection was disposed.");
+                throw new ObjectDisposedException("The XMPP connection was disposed.", _innerDisposed);
         }
 
         private void CheckConnected()
