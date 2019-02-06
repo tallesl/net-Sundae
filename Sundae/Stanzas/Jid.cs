@@ -1,5 +1,7 @@
 namespace Sundae
 {
+    using System.Xml;
+
     /// <summary>
     /// Jabber identifier (JID), the network address of an XMPP entity (local@domain/resource).
     ///  https://tools.ietf.org/html/rfc7622
@@ -61,5 +63,17 @@ namespace Sundae
         }
 
         public static implicit operator string(Jid jid) => jid.ToString();
+
+        internal static Jid GetJid(XmlElement element, string attribute)
+        {
+            var value = element.GetAttribute(attribute);
+            return string.IsNullOrEmpty(value) ? null : new Jid(value);
+        }
+
+        internal static Jid GetJidOrThrow(XmlElement element, string attribute)
+        {
+            var value = element.GetAttributeOrThrow(attribute);
+            return string.IsNullOrEmpty(value) ? null : new Jid(value);
+        }
     }
 }

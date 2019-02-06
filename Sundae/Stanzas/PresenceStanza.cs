@@ -3,6 +3,7 @@ namespace Sundae
     using System.Collections.Generic;
     using System.Xml;
     using System.Linq;
+    using static Jid;
     using static StanzaError;
 
     /// <summary>
@@ -78,7 +79,7 @@ namespace Sundae
 
             return new PresenceStanza
             {
-                From = new Jid(element.GetAttribute("from")),
+                From = GetJid(element, "from"),
                 Type = element.GetAttribute("type"),
                 Show = element.SingleChildOrDefault("show")?.InnerText.Trim(),
                 Status = element.SingleChildOrDefault("status")?.InnerText.Trim(),

@@ -1,6 +1,7 @@
 namespace Sundae
 {
     using System.Xml;
+    using static Jid;
     using static StanzaError;
 
     /// <summary>
@@ -76,8 +77,8 @@ namespace Sundae
 
             return new MessageStanza
             {
-                From = new Jid(element.GetAttributeOrThrow("from")),
-                To = new Jid(element.GetAttributeOrThrow("to")),
+                From = GetJidOrThrow(element, "from"),
+                To = GetJid(element, "to"),
                 Type = element.GetAttribute("type"),
                 Subject = element.SingleChildOrDefault("subject")?.InnerText.Trim(),
                 Body = element.SingleChildOrDefault("body")?.InnerText.Trim(),
