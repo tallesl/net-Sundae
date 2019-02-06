@@ -7,10 +7,10 @@ namespace Sundae
     using System.Threading;
     using System.Xml;
     using System;
-    using static ErrorElement;
     using static IqStanza;
     using static MessageStanza;
     using static PresenceStanza;
+    using static StreamError;
 
     /// <summary>
     /// Connection to XMPP server.
@@ -60,7 +60,7 @@ namespace Sundae
         /// The server ended up the stream with an error.
         /// The connection is diposed and can't be further used after this event is raised.
         /// </summary>
-        public event EventHandler<ErrorElement> OnStreamError;
+        public event EventHandler<StreamError> OnStreamError;
 
         /// <summary>
         /// A message stanza was received.

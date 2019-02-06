@@ -3,7 +3,7 @@ namespace Sundae
     using System.Collections.Generic;
     using System.Xml;
     using System.Linq;
-    using static ErrorElement;
+    using static StanzaError;
 
     /// <summary>
     /// Presence stanza given by the XMPP server.
@@ -64,7 +64,7 @@ namespace Sundae
         /// <summary>
         /// Stanza-related error, if any.
         /// </summary>
-        public ErrorElement Error { get; set; }
+        public StanzaError Error { get; set; }
 
         /// <summary>
         /// XML element of this stanza.
@@ -82,7 +82,7 @@ namespace Sundae
                 Type = element.GetAttribute("type"),
                 Show = element.SingleChildOrDefault("show")?.InnerText.Trim(),
                 Status = element.SingleChildOrDefault("status")?.InnerText.Trim(),
-                Error = element.GetAttribute("type") == "error" ? GetStanzaError(element.SingleChild("error")) : null,
+                Error = GetStanzaError(element),
                 Element = element,
             };
         }

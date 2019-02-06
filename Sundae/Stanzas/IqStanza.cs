@@ -1,7 +1,7 @@
 namespace Sundae
 {
     using System.Xml;
-    using static ErrorElement;
+    using static StanzaError;
 
     /// <summary>
     /// IQ (Info/Query) stanza given by the XMPP server.
@@ -46,7 +46,7 @@ namespace Sundae
         /// <summary>
         /// Stanza-related error, if any.
         /// </summary>
-        public ErrorElement Error { get; set; }
+        public StanzaError Error { get; set; }
 
         internal static IqStanza GetIq(XmlElement element)
         {
@@ -58,7 +58,7 @@ namespace Sundae
                 Id = element.GetAttributeOrThrow("id"),
                 Type = element.GetAttributeOrThrow("type"),
                 Element = element,
-                Error = element.GetAttribute("type") == "error" ? GetStanzaError(element.SingleChild("error")) : null,
+                Error = GetStanzaError(element),
             };
         }
     }
