@@ -19,7 +19,7 @@ namespace Sundae
     {
         private readonly XmppStream _stream;
 
-        private readonly KeyedWait<string, XmlElement> _pendingIq;
+        private readonly KeyedWait<string, XmlElement> _pendingResults;
 
         private CancellationTokenSource _tokenSource;
 
@@ -53,7 +53,7 @@ namespace Sundae
             Domain = domain;
 
             _stream = new XmppStream();
-            _pendingIq = new KeyedWait<string, XmlElement>();
+            _pendingResults = new KeyedWait<string, XmlElement>();
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace Sundae
 
             // Sets up the blocking call.
             var id = xml.GetAttribute("id");
-            var result = _pendingIq.Get(id, timeout);
+            var result = _pendingResults.Get(id, timeout);
 
             // Send the data.
             SendCustom(xml);
@@ -185,7 +185,7 @@ namespace Sundae
             _tokenSource.Cancel();
             _tokenSource.Dispose();
 
-            _pendingIq.Dispose(innerDispose);
+            _pendingResults.Dispose(innerDispose);
             _stream.Dispose(innerDispose);
         }
 
@@ -222,7 +222,7 @@ namespace Sundae
                 return false;
 
             // Unblocks any blocking call waiting for the IQ response.
-            _pendingIq.Set(iq.Id, iq.Element);
+            _pendingResults.Set(iq.Id, iq.Element);
 
             return true;
         }
