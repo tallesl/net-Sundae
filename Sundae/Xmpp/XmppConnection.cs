@@ -79,12 +79,6 @@ namespace Sundae
         public event EventHandler<XmlElement> OnElement;
 
         /// <summary>
-        /// One of the provided event handlers throwed an exception (make sure this one doesn't throw, else the
-        /// exception is swallowed).
-        /// </summary>
-        public event EventHandler<Exception> OnException;
-
-        /// <summary>
         /// Something bad happened internally.
         /// </summary>
         public event EventHandler<Exception> OnInternalException;
@@ -124,7 +118,7 @@ namespace Sundae
                 }
                 catch (Exception e)
                 {
-                    OnInternalException?.Invoke(this, e);
+                    RaiseEvent(e, OnInternalException);
                 }
             });
         }
@@ -234,22 +228,8 @@ namespace Sundae
             if (e == null)
                 return false;
 
-            // Runs the user event handler on another thread, catching any exception on their part.
-            Task.Run(() =>
-            {
-                try
-                {
-                    handler?.Invoke(this, e);
-                }
-                catch (Exception ex)
-                {
-                    try
-                    {
-                        OnException?.Invoke(this, ex);
-                    }
-                    catch { }
-                }
-            });
+            // Runs the user event handler on another task.
+            Task.Run(() => handler?.Invoke(this, e));
 
             // Returning that the event was handled by this call.
             // Enables this method to be called in a pipeline fashion.

@@ -36,15 +36,8 @@ public static class Program
                 { "roster", () => xmpp.SendRoster() }
             };
 
-            EventHandler<Exception> error = (_, e) =>
-            {
-                Print(e);
-                Environment.Exit(1);
-            };
-
-            xmpp.OnException += error;
-            xmpp.OnInternalException += error;
             xmpp.OnElement += (_, e) => pending.Add(e);
+            xmpp.OnInternalException += (_, e) => Print(e);
 
             Print($"Available commands: {string.Join(", ", commands.Keys)}.");
 
