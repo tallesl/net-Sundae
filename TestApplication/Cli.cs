@@ -5,37 +5,34 @@ using System;
 
 public static class Cli
 {
+    public static void Print(object o)
+    {
+        Clear();
+        Console.WriteLine(o);
+        Console.WriteLine();
+    }
+
     public static void PrintReceived(IEnumerable<XmlElement> elements)
     {
-        Action waiting = () => Console.Write("Waiting...");
-        Action clear = () => Console.Write("\r               \r");
-
-        Console.WriteLine("Received: ");
-        Console.WriteLine();
+        Print("Received: ");
 
         // Deferred execution, that's why no Any().
         var nothing = true;
 
-        waiting();
+        Console.Write("Waiting...");
 
         foreach (var e in elements)
         {
             nothing = false;
 
-            clear();
-            Console.WriteLine(e.OuterXml);
-            Console.WriteLine();
-
-            waiting();
+            Print(e.OuterXml);
+            Console.Write("Waiting...");
         }
 
-        clear();
+        Clear();
 
         if (nothing)
-        {
-            Console.WriteLine("Nothing.");
-            Console.WriteLine();
-        }
+            Print("Nothing.");
     }
 
     public static string Random(string text = null)
@@ -73,4 +70,6 @@ public static class Cli
 
         return hasNext && !nextIsOption ? ReplaceRandom(args[next]) : Ask(option);
     }
+
+    private static void Clear() => Console.Write("\r               \r");
 }

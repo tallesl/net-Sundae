@@ -38,17 +38,15 @@ public static class Program
 
             EventHandler<Exception> error = (_, e) =>
             {
-                Console.WriteLine();
-                Console.Error.WriteLine(e);
+                Print(e);
                 Environment.Exit(1);
             };
 
             xmpp.OnException += error;
             xmpp.OnInternalException += error;
             xmpp.OnElement += (_, e) => pending.Add(e);
-            xmpp.OnStreamError += (_, e) => Console.Error.WriteLine($"Stream error: {e.Text ?? e.DefinedCondition}");
 
-            Console.WriteLine($"Available commands: {string.Join(", ", commands.Keys)}.");
+            Print($"Available commands: {string.Join(", ", commands.Keys)}.");
 
             while (!source.Token.IsCancellationRequested)
             {
@@ -64,7 +62,7 @@ public static class Program
                     action();
 
                 else
-                    Console.WriteLine($"Invalid command.{Environment.NewLine}");
+                    Print("Invalid command.");
 
                 PrintReceived(pending.TakeAll(currentTimeout));
             }
