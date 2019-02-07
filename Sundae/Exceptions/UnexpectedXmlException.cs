@@ -9,6 +9,6 @@ namespace Sundae
     public class UnexpectedXmlException : Exception
     {
         internal UnexpectedXmlException(string message, XmlElement element):
-            base($"{message}{Environment.NewLine}{Environment.NewLine}{element.OuterXml}") { }
+            base($"{message}{Environment.NewLine}{Environment.NewLine}{element.Beautify()}") { }
     }
 }

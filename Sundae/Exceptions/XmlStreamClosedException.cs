@@ -11,7 +11,7 @@ namespace Sundae
         internal XmlStreamClosedException(XmlElement lastElement): base(
             lastElement.Name == "stream:error" ?
             "The XML stream was closed due to an error:" +
-            $"{Environment.NewLine}{Environment.NewLine}{lastElement.OuterXml}" :
+            $"{Environment.NewLine}{Environment.NewLine}{lastElement.Beautify()}" :
             "The XML stream was closed.") { }
     }
 }
