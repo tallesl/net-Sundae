@@ -16,24 +16,24 @@ namespace Sundae
         /// Type attribute of this stanza.
         /// Refer to the enumeration documentation for description and possible values.
         /// </summary>
-        public StanzaErrorType Type { get; set; }
+        public StanzaErrorType Type { get; private set; }
 
         /// <summary>
         /// Predefined conditions for stanza and stream-level errors.
         /// https://tools.ietf.org/html/rfc6120#section-8.3.3
         /// </summary>
-        public StanzaErrorCondition DefinedCondition { get; set; }
+        public StanzaErrorCondition DefinedCondition { get; private set; }
 
         /// <summary>
         /// Descriptive or diagnostic information that supplements the meaning of a defined condition or
         /// application-specific condition.
         /// </summary>
-        public string Text { get; set; }
+        public string Text { get; private set; }
 
         /// <summary>
         /// XML element of this error.
         /// </summary>
-        public XmlElement Element { get; set; }
+        public XmlElement Element { get; private set; }
 
         internal static StanzaError GetStanzaError(XmlElement element)
         {

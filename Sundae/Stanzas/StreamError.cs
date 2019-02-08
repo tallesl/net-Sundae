@@ -16,18 +16,18 @@ namespace Sundae
         /// Predefined conditions for stanza and stream-level errors.
         /// https://tools.ietf.org/html/rfc6120#section-4.9.3
         /// </summary>
-        public StreamErrorCondition DefinedCondition { get; set; }
+        public StreamErrorCondition DefinedCondition { get; private set; }
 
         /// <summary>
         /// Descriptive or diagnostic information that supplements the meaning of a defined condition or
         /// application-specific condition.
         /// </summary>
-        public string Text { get; set; }
+        public string Text { get; private set; }
 
         /// <summary>
         /// XML element of this error.
         /// </summary>
-        public XmlElement Element { get; set; }
+        public XmlElement Element { get; private set; }
 
         internal static StreamError GetStreamError(XmlElement element)
         {

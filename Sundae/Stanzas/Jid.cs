@@ -33,19 +33,19 @@ namespace Sundae
         /// Uniquely identifies the entity requesting and using network access provided by a server (a local account).
         /// https://tools.ietf.org/html/rfc7622#section-3.3
         /// </summary>
-        public string Local { get; internal set; }
+        public string Local { get; private set; }
 
         /// <summary>
         /// Identifies the "home" server to which clients connect for XML routing and data management functionality.
         /// https://tools.ietf.org/html/rfc7622#section-3.2
         /// </summary>
-        public string Domain { get; internal set; }
+        public string Domain { get; private set; }
 
         /// <summary>
         /// Uniquely identifies a specific connection (a device or location).
         /// https://tools.ietf.org/html/rfc7622#section-3.4
         /// </summary>
-        public string Resource { get; internal set; }
+        public string Resource { get; private set; }
 
         public override string ToString()
         {
