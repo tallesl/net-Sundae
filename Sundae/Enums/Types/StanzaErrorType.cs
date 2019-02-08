@@ -7,6 +7,13 @@ namespace Sundae
     public enum StanzaErrorType
     {
         /// <summary>
+        /// A value not listed in the RFC was found.
+        /// Please refer to the XML element for the actual value.
+        /// https://tools.ietf.org/html/rfc6120#section-8.3.2
+        /// </summary>
+        Unknown,
+
+        /// <summary>
         /// Retry after providing credentials.
         /// </summary>
         Auth,
@@ -30,12 +37,5 @@ namespace Sundae
         /// Retry after waiting (the error is temporary).
         /// </summary>
         Wait,
-
-        /// <summary>
-        /// A value not listed in the RFC was found.
-        /// Please refer to the XML element for the actual value.
-        /// https://tools.ietf.org/html/rfc6120#section-8.3.2
-        /// </summary>
-        Unknown,
     }
 }

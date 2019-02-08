@@ -7,6 +7,13 @@ namespace Sundae
     public enum MessageType
     {
         /// <summary>
+        /// A value not listed in the RFC was found.
+        /// Please refer to the XML element for the actual value.
+        /// https://tools.ietf.org/html/rfc6121#section-5.2.2
+        /// </summary>
+        Unknown,
+
+        /// <summary>
         /// The message is sent in the context of a one-to-one chat session.
         /// </summary>
         Chat,
@@ -32,12 +39,5 @@ namespace Sundae
         /// groupchat, and to which it is expected that the recipient will reply.
         /// </summary>
         Normal,
-
-        /// <summary>
-        /// A value not listed in the RFC was found.
-        /// Please refer to the XML element for the actual value.
-        /// https://tools.ietf.org/html/rfc6121#section-5.2.2
-        /// </summary>
-        Unknown,
     }
 }

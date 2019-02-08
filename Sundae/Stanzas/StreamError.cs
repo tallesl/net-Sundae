@@ -16,7 +16,7 @@ namespace Sundae
         /// Predefined conditions for stanza and stream-level errors.
         /// https://tools.ietf.org/html/rfc6120#section-4.9.3
         /// </summary>
-        public string DefinedCondition { get; set; } // TODO StreamErrorDefinedCondition
+        public StreamErrorCondition DefinedCondition { get; set; }
 
         /// <summary>
         /// Descriptive or diagnostic information that supplements the meaning of a defined condition or
@@ -36,7 +36,7 @@ namespace Sundae
 
             return new StreamError
             {
-                DefinedCondition = element.GetDefinedCondition(),
+                DefinedCondition = element.GetDefinedCondition().ToEnum<StreamErrorCondition>(),
                 Text = element.SingleChildOrDefault("text")?.InnerText.Trim(),
                 Element = element,
             };

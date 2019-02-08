@@ -18,7 +18,7 @@ namespace Sundae
         /// The absence of a 'type' attribute signals that the relevant entity is available for communication.
         /// https://tools.ietf.org/html/rfc6121#section-4.7.1
         /// </summary>
-        public bool AvailableForCommunication => string.IsNullOrEmpty(Type);
+        public bool AvailableForCommunication => !Type.HasValue;
 
         /// <summary>
         /// JID of the intended recipient.
@@ -44,7 +44,7 @@ namespace Sundae
         /// Refer to the enumeration documentation for description and possible values.
         /// https://tools.ietf.org/html/rfc6120#section-8.1.4
         /// </summary>
-        public string Type { get; set; } // TODO PresenceType enum (https://tools.ietf.org/html/rfc6121#section-4.7.1)
+        public PresenceType? Type { get; set; }
 
         /// <summary>
         /// Show attribute of this stanza.
@@ -59,8 +59,6 @@ namespace Sundae
         public string Status { get; set; }
 
         // TODO Priority property (https://tools.ietf.org/html/rfc6121#section-4.7.2.3)
-
-        // TODO ExtendedContent property (https://tools.ietf.org/html/rfc6121#section-4.7.3)
 
         /// <summary>
         /// Stanza-related error, if any.
@@ -80,7 +78,7 @@ namespace Sundae
             return new PresenceStanza
             {
                 From = GetJid(element, "from"),
-                Type = element.GetAttribute("type"),
+                Type = element.GetAttribute("type").ToEnum<PresenceType?>(),
                 Show = element.SingleChildOrDefault("show")?.InnerText.Trim(),
                 Status = element.SingleChildOrDefault("status")?.InnerText.Trim(),
                 Error = GetStanzaError(element),

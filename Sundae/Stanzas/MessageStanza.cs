@@ -38,7 +38,7 @@ namespace Sundae
         /// https://tools.ietf.org/html/rfc6120#section-8.1.4
         /// https://tools.ietf.org/html/rfc6121#section-5.2.2
         /// </summary>
-        public string Type { get; set; } // TODO MessageType enum (https://tools.ietf.org/html/rfc6121#section-4.7.1)
+        public MessageType Type { get; set; }
 
         /// <summary>
         /// Human-readable textual contents of the message.
@@ -57,8 +57,6 @@ namespace Sundae
         /// https://tools.ietf.org/html/rfc6121#section-5.2.5
         /// </summary>
         public string Thread { get; set; }
-
-        // TODO ExtendedContent property (https://tools.ietf.org/html/rfc6121#section-4.7.3)
 
         /// <summary>
         /// Stanza-related error, if any.
@@ -79,7 +77,7 @@ namespace Sundae
             {
                 From = GetJidOrThrow(element, "from"),
                 To = GetJid(element, "to"),
-                Type = element.GetAttribute("type"),
+                Type = element.GetAttribute("type").ToEnum<MessageType>(),
                 Subject = element.SingleChildOrDefault("subject")?.InnerText.Trim(),
                 Body = element.SingleChildOrDefault("body")?.InnerText.Trim(),
                 Thread = element.SingleChildOrDefault("thread")?.InnerText.Trim(),

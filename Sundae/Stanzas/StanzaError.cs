@@ -16,13 +16,13 @@ namespace Sundae
         /// Type attribute of this stanza.
         /// Refer to the enumeration documentation for description and possible values.
         /// </summary>
-        public string Type { get; set; } // TODO StanzaErrorType
+        public StanzaErrorType Type { get; set; }
 
         /// <summary>
         /// Predefined conditions for stanza and stream-level errors.
         /// https://tools.ietf.org/html/rfc6120#section-8.3.3
         /// </summary>
-        public string DefinedCondition { get; set; } // TODO StanzaErrorDefinedCondition
+        public StanzaErrorCondition DefinedCondition { get; set; }
 
         /// <summary>
         /// Descriptive or diagnostic information that supplements the meaning of a defined condition or
@@ -47,8 +47,8 @@ namespace Sundae
 
             return new StanzaError
             {
-                Type = errorElement.GetAttribute("type"),
-                DefinedCondition = errorElement.GetDefinedCondition(),
+                Type = errorElement.GetAttribute("type").ToEnum<StanzaErrorType>(),
+                DefinedCondition = errorElement.GetDefinedCondition().ToEnum<StanzaErrorCondition>(),
                 Text = errorElement.SingleChildOrDefault("text")?.InnerText.Trim(),
                 Element = errorElement,
             };

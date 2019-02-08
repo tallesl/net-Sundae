@@ -7,6 +7,13 @@ namespace Sundae
     public enum StanzaErrorCondition
     {
         /// <summary>
+        /// A value not listed in the RFC was found.
+        /// Please refer to the XML element for the actual value.
+        /// https://tools.ietf.org/html/rfc6120#section-8.3.3
+        /// </summary>
+        Unknown,
+
+        /// <summary>
         /// The sender has sent a stanza containing XML that does not conform to the appropriate schema or that cannot
         /// be processed (e.g., an IQ stanza that includes an unrecognized value of the 'type' attribute, or an element
         /// that is qualified by a recognized namespace but that violates the defined syntax for the element).
@@ -165,12 +172,5 @@ namespace Sundae
         /// https://tools.ietf.org/html/rfc6120#section-8.3.3.22
         /// </summary>
         UnexpectedRequest,
-
-        /// <summary>
-        /// A value not listed in the RFC was found.
-        /// Please refer to the XML element for the actual value.
-        /// https://tools.ietf.org/html/rfc6120#section-8.3.3
-        /// </summary>
-        Unknown,
     }
 }

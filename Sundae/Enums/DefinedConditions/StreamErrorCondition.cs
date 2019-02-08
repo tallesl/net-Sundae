@@ -7,6 +7,13 @@ namespace Sundae
     public enum StreamErrorCondition
     {
         /// <summary>
+        /// A value not listed in the RFC was found.
+        /// Please refer to the XML element for the actual value.
+        /// https://tools.ietf.org/html/rfc6120#section-4.9.3
+        /// </summary>
+        Unknown,
+
+        /// <summary>
         /// The entity has sent XML that cannot be processed.
         /// https://tools.ietf.org/html/rfc6120#section-4.9.3.1
         /// </summary>
@@ -185,12 +192,5 @@ namespace Sundae
         /// https://tools.ietf.org/html/rfc6120#section-4.9.3.25
         /// </summary>
         UnsupportedVersion,
-
-        /// <summary>
-        /// A value not listed in the RFC was found.
-        /// Please refer to the XML element for the actual value.
-        /// https://tools.ietf.org/html/rfc6120#section-4.9.3
-        /// </summary>
-        Unknown,
     }
 }

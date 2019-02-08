@@ -7,6 +7,13 @@ namespace Sundae
     public enum PresenceType
     {
         /// <summary>
+        /// A value not listed in the RFC was found.
+        /// Please refer to the XML element for the actual value.
+        /// https://tools.ietf.org/html/rfc6121#section-4.7.1
+        /// </summary>
+        Unknown,
+
+        /// <summary>
         /// An error has occurred regarding processing of a previously sent presence stanza.
         /// </summary>
         Error,
@@ -40,12 +47,5 @@ namespace Sundae
         /// The subscription request has been denied or a previously granted subscription has been canceled.
         /// </summary>
         Unsubscribed,
-
-        /// <summary>
-        /// A value not listed in the RFC was found.
-        /// Please refer to the XML element for the actual value.
-        /// https://tools.ietf.org/html/rfc6121#section-4.7.1
-        /// </summary>
-        Unknown,
     }
 }
