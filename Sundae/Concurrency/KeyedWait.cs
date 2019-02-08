@@ -13,7 +13,7 @@ namespace Sundae
         // TKeys pending to be set (pending 'Set' call).
         private readonly IDictionary<TKey, AutoResetEvent> _pendingSet = new Dictionary<TKey, AutoResetEvent>();
 
-        // TValues pending to be get (pending blocking 'Get' call).
+        // TValues pending to be retrieved (pending blocking 'Get' call).
         private readonly IDictionary<TKey, TValue> _pendingGet = new Dictionary<TKey, TValue>();
 
         // Can't get and set a TKey at the same time.
