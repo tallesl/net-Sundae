@@ -4,7 +4,7 @@ namespace Sundae
     /// Conditions used in stanza errors.
     /// https://tools.ietf.org/html/rfc6120#section-8.3.3
     /// </summary>
-    public enum StanzaErrorConditions
+    public enum StanzaErrorCondition
     {
         /// <summary>
         /// The sender has sent a stanza containing XML that does not conform to the appropriate schema or that cannot

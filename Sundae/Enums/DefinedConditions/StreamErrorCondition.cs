@@ -4,7 +4,7 @@ namespace Sundae
     /// Stream-level error conditions.
     /// https://tools.ietf.org/html/rfc6120#section-4.9.3
     /// </summary>
-    public enum StreamErrorConditions
+    public enum StreamErrorCondition
     {
         /// <summary>
         /// The entity has sent XML that cannot be processed.
