@@ -1,6 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyTitle>Sundae</AssemblyTitle>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <Authors>Talles L &lt;talleslasmar@gmail.com&gt;</Authors>
+    <Description>A XMPP thing.</Description>
+    <FileVersion>0.1.0.0</FileVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageTags>netcore;jabber;xmpp;</PackageTags>
+    <PackageVersion>0.1.0</PackageVersion>
+    <PackageIconUrl>https://raw.githubusercontent.com/xmpp-friends/Sundae/master/Sundae.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/xmpp-friends/sundae</RepositoryUrl>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
