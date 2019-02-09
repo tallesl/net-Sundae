@@ -58,7 +58,11 @@ namespace Sundae
         /// </summary>
         public string Status { get; private set; }
 
-        // TODO Priority property (https://tools.ietf.org/html/rfc6121#section-4.7.2.3)
+        /// <summary>
+        /// Integer between -128 and +127 that specifies the priority level of the resource.
+        /// https://tools.ietf.org/html/rfc6121#section-4.7.2.3
+        /// </summary>
+        public int? Priority { get; private set; }
 
         /// <summary>
         /// Stanza-related error, if any.
@@ -81,6 +85,7 @@ namespace Sundae
                 Type = element.GetAttribute("type").ToEnum<PresenceType?>(),
                 Show = element.SingleChildOrDefault("show")?.InnerText.Trim(),
                 Status = element.SingleChildOrDefault("status")?.InnerText.Trim(),
+                Priority = element.GetIntegerAttribute("priority"),
                 Error = GetStanzaError(element),
                 Element = element,
             };
