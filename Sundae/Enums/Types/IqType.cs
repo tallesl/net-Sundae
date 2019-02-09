@@ -9,7 +9,6 @@ namespace Sundae
         /// <summary>
         /// A value not listed in the RFC was found.
         /// Please refer to the XML element for the actual value.
-        /// https://tools.ietf.org/html/rfc6120#section-8.2.3
         /// </summary>
         Unknown,
 

@@ -42,7 +42,6 @@ namespace Sundae
         /// <summary>
         /// Type attribute of this stanza.
         /// Refer to the enumeration documentation for description and possible values.
-        /// https://tools.ietf.org/html/rfc6120#section-8.1.4
         /// </summary>
         public PresenceType? Type { get; private set; }
 

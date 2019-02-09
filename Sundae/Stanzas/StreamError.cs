@@ -14,7 +14,6 @@ namespace Sundae
 
         /// <summary>
         /// Predefined conditions for stanza and stream-level errors.
-        /// https://tools.ietf.org/html/rfc6120#section-4.9.3
         /// </summary>
         public StreamErrorCondition DefinedCondition { get; private set; }
 
