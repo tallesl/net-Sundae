@@ -33,10 +33,8 @@ namespace Sundae
         /// <summary>
         /// Type attribute of this stanza.
         /// Refer to the enumeration documentation for description and possible values.
-        /// https://tools.ietf.org/html/rfc6120#section-8.1.4
-        /// https://tools.ietf.org/html/rfc6120#section-8.2.3
         /// </summary>
-        public string Type { get; private set; }
+        public IqType Type { get; private set; }
 
         /// <summary>
         /// XML element of this stanza.
@@ -56,7 +54,7 @@ namespace Sundae
             return new IqStanza
             {
                 Id = element.GetAttributeOrThrow("id"),
-                Type = element.GetAttributeOrThrow("type"),
+                Type = element.GetAttributeOrThrow("type").ToEnum<IqType>(),
                 Element = element,
                 Error = GetStanzaError(element),
             };
