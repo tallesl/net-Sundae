@@ -21,7 +21,9 @@ namespace Sundae
 
         private static string Normalize(string text) => text.Trim().ToLower().Replace("-", string.Empty);
 
+        private static Type GetType<T>() => Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+
         private static IDictionary<string, T> Values<T>() =>
-            Enum.GetValues(typeof(T)).Cast<T>().ToDictionary(v => Normalize(v.ToString()), v => v);
+            Enum.GetValues(GetType<T>()).Cast<T>().ToDictionary(v => Normalize(v.ToString()), v => v);
     }
 }
