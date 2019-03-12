@@ -65,7 +65,7 @@
             lock (_readLock)
             lock (_writeLock)
             {
-                CheckDisposed();
+                ShouldNotBeConnected();
 
                 _client = new TcpClient(host, port);
                 _stream = _client.GetStream();
@@ -86,7 +86,7 @@
         {
             lock (_writeLock)
             {
-                CheckConnected();
+                ShouldBeConnected();
                 _Write(xml);
             }
         }
@@ -96,7 +96,7 @@
             lock (_readLock)
             {
                 // Should be connected.
-                CheckConnected();
+                ShouldBeConnected();
 
                 // Blocks until something is read.
                 MoveReader();
@@ -166,18 +166,26 @@
             }
         }
 
-        private void CheckDisposed()
+        private void ShouldBeConnected()
         {
-            if (_disposed)
-                throw new ObjectDisposedException("The XMPP connection was disposed.", _innerDisposed);
-        }
-
-        private void CheckConnected()
-        {
-            CheckDisposed();
+            ShouldNotBeDisposed();
 
             if (!_connected)
                 throw new InvalidOperationException("Not connected.");
+        }
+
+        private void ShouldNotBeConnected()
+        {
+            ShouldNotBeDisposed();
+
+            if (_connected)
+                throw new InvalidOperationException("Already connected.");
+        }
+
+        private void ShouldNotBeDisposed()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException("The XMPP connection was disposed.", _innerDisposed);
         }
     }
 }
