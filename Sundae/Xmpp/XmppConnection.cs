@@ -176,8 +176,9 @@ namespace Sundae
 
         private void Dispose(Exception innerDispose)
         {
-            _tokenSource.Cancel();
-            _tokenSource.Dispose();
+            _tokenSource?.Cancel();
+            _tokenSource?.Dispose();
+            _tokenSource = null;
 
             _pendingResults.Dispose(innerDispose);
             _stream.Dispose(innerDispose);
